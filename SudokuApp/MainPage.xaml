@@ -7,7 +7,21 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:Name="myButton" Click="ClickHandler">Click Me</Button>
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Height="27" TextWrapping="Wrap" Width="45" Text="{x:Bind SudokuViewModel.Title, Mode=OneWay}"/>
+        <GridView x:Name="grid" Height="702" Width="1246" RenderTransformOrigin="0.467,0.706">
+            <GridView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Border Background="LightGray" Height="200" Width="200">
+                            <TextBlock Text="{Binding}" 
+                               FontSize="48" Foreground="Green"/>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+            <x:String>One</x:String>
+            <GridViewItem Content="Two"/>
+        </GridView>
     </StackPanel>
 </Page>

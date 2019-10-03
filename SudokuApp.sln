@@ -5,7 +5,13 @@ VisualStudioVersion = 16.0.29324.140
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SudokuApp", "SudokuApp\SudokuApp.vcxproj", "{236F5383-5428-43D0-9017-D776693118E9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sudoku", "Sudoku\Sudoku.vcxitems", "{635788FE-0E54-4FBD-BA3D-F108315B9B27}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Sudoku\Sudoku.vcxitems*{236f5383-5428-43d0-9017-d776693118e9}*SharedItemsImports = 4
+		Sudoku\Sudoku.vcxitems*{635788fe-0e54-4fbd-ba3d-f108315b9b27}*SharedItemsImports = 9
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
 		Debug|x64 = Debug|x64

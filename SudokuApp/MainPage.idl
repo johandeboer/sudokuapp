@@ -1,9 +1,11 @@
+import "SudokuRtc.idl";
+
 namespace SudokuApp
 {
     [default_interface]
     runtimeclass MainPage : Windows.UI.Xaml.Controls.Page
     {
         MainPage();
-        Int32 MyProperty;
+        SudokuRtc SudokuViewModel{ get; };
     }
 }

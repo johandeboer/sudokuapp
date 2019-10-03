@@ -1,0 +1,9 @@
+//import "oaidl.idl";
+
+namespace SudokuApp
+{
+    runtimeclass SudokuRtc : Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        String Title;
+    }
+}

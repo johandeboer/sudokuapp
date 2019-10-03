@@ -9,21 +9,18 @@ namespace winrt::SudokuApp::implementation
 {
     MainPage::MainPage()
     {
+        mSudokuRtc = winrt::make<winrt::SudokuApp::implementation::SudokuRtc>();
+
         InitializeComponent();
+        fillGrid(puzzle);
     }
 
-    int32_t MainPage::MyProperty()
+    SudokuApp::SudokuRtc MainPage::SudokuViewModel()
     {
-        throw hresult_not_implemented();
+        return mSudokuRtc;
     }
 
-    void MainPage::MyProperty(int32_t /* value */)
+    void MainPage::fillGrid(Sudoku::Sudoku)
     {
-        throw hresult_not_implemented();
-    }
-
-    void MainPage::ClickHandler(IInspectable const&, RoutedEventArgs const&)
-    {
-        myButton().Content(box_value(L"Clicked"));
     }
 }

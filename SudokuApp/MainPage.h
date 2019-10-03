@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include "MainPage.g.h"
+#include "Sudoku.h"
+#include "SudokuRtc.h"
 
 namespace winrt::SudokuApp::implementation
 {
@@ -8,10 +10,13 @@ namespace winrt::SudokuApp::implementation
     {
         MainPage();
 
-        int32_t MyProperty();
-        void MyProperty(int32_t value);
+        SudokuApp::SudokuRtc SudokuViewModel();
 
-        void ClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
+    private:
+        void fillGrid(Sudoku::Sudoku);
+
+        Sudoku::Sudoku puzzle = Sudoku::Sudoku(9, 9);
+        winrt::SudokuApp::SudokuRtc mSudokuRtc{ nullptr };
     };
 }
 
