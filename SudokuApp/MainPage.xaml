@@ -20,8 +20,25 @@
                     </Grid>
                 </DataTemplate>
             </GridView.ItemTemplate>
-            <x:String>One</x:String>
-            <GridViewItem Content="Two"/>
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="{Binding SudokuViewModel.Columns, Mode=OneWay}"/>
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+            <x:String>1</x:String>
+            <x:String>2</x:String>
+            <x:String>3</x:String>
+            <x:String>4</x:String>
+            <x:String>5</x:String>
+            <x:String>6</x:String>
+            <x:String>7</x:String>
+            <x:String>8</x:String>
+            <x:String>9</x:String>
+            <x:String>10</x:String>
+            <x:String>11</x:String>
+            <x:String>12</x:String>
+            <x:String>13</x:String>
+            <x:String>14</x:String>
         </GridView>
     </StackPanel>
 </Page>

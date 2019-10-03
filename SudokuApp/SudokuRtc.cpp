@@ -7,6 +7,7 @@ namespace winrt::SudokuApp::implementation
     SudokuRtc::SudokuRtc()
     {
         mTitle = L"title";
+        mColumns = 9;
     }
 
     hstring SudokuRtc::Title()
@@ -20,6 +21,20 @@ namespace winrt::SudokuApp::implementation
         {
             mTitle = value;
             mPropertyChanged(*this, Windows::UI::Xaml::Data::PropertyChangedEventArgs{ L"Title" });
+        }
+    }
+
+    int SudokuRtc::Columns()
+    {
+        return mColumns;
+    }
+
+    void SudokuRtc::Columns(int value)
+    {
+        if (value != mColumns)
+        {
+            mColumns = value;
+            mPropertyChanged(*this, Windows::UI::Xaml::Data::PropertyChangedEventArgs{ L"Columns" });
         }
     }
 
