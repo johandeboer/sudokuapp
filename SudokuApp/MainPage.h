@@ -13,9 +13,10 @@ namespace winrt::SudokuApp::implementation
         SudokuApp::SudokuRtc SudokuViewModel();
 
     private:
-        void fillGrid(Sudoku::Sudoku);
+        void fillGrid(const Sudoku::Puzzle & puzzle);
+        void fillCell(const winrt::Windows::UI::Xaml::Controls::Grid & grid, Sudoku::Cell * cell, int row, int column);
 
-        Sudoku::Sudoku puzzle = Sudoku::Sudoku(9, 9);
+        Sudoku::puzzle puzzle = Sudoku::Puzzle(9, 9);
         winrt::SudokuApp::SudokuRtc mSudokuRtc{ nullptr };
     };
 }

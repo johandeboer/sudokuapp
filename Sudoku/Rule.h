@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "Cell.h"
+#include "Sudoku.h"
 
 namespace Sudoku
 {
@@ -9,7 +9,14 @@ namespace Sudoku
 class Rule
 {
 public:
-    Rule(std::vector<Cell *> cells);
+    Rule();
+    static Rule createLine(const Sudoku::Puzzle & puzzle, unsigned int startIndex, unsigned int count, unsigned int stride);
+    static Rule createBlock(const Sudoku::Puzzle & puzzle, unsigned int row, unsigned int column, unsigned int size);
+
+protected:
+
+    void setCells(std::vector<Cell *> cells);
+    void addCell(Cell * cell);
 
 private:
     std::vector<Cell *> mCells;
