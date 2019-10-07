@@ -10,16 +10,34 @@ class Rule
 {
 public:
     Rule();
-    static Rule createLine(Sudoku::Puzzle & puzzle, unsigned int startIndex, unsigned int count, unsigned int stride);
-    static Rule createBlock(Sudoku::Puzzle & puzzle, unsigned int row, unsigned int column, unsigned int size);
+
+    void addCell(Cell * cell);
+
+    virtual std::string name() { return "rule"; }
 
 protected:
-
     void setCells(std::vector<Cell *> cells);
-    void addCell(Cell * cell);
 
 private:
     std::vector<Cell *> mCells;
+};
+
+class HorizontalRule : public Rule
+{
+public:
+    std::string name() override { return "horizontal"; }
+};
+
+class VerticalRule : public Rule
+{
+public:
+    std::string name() override { return "vertical"; }
+};
+
+class BlockRule : public Rule
+{
+public:
+    std::string name() override { return "block"; }
 };
 
 }
