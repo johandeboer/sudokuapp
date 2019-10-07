@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "SudokuFactory.h"
+#include "Rule.h"
+#include "Cell.h"
 
 using namespace Sudoku;
 
 Puzzle SudokuFactory::plainSudoku()
 {
-    auto k = 3;
-    auto n = k*k;
+    unsigned int k = 3;
+    unsigned int n = k*k;
     auto puzzle = Puzzle(n, n);
 
     for (auto i = 0u; i < n; ++i)
@@ -22,4 +24,6 @@ Puzzle SudokuFactory::plainSudoku()
     {
         puzzle.addRule(Rule::createBlock(puzzle, i, j, k));
     }
+
+    return puzzle;
 }

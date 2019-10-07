@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "Rule.h"
-#include "Sudoku.h"
+#include "Cell.h"
 
 using namespace Sudoku;
 
-Rule Rule::createLine(const Puzzle & puzzle, unsigned int startIndex, unsigned int count, unsigned int stride)
+Rule Rule::createLine(Puzzle & puzzle, unsigned int startIndex, unsigned int count, unsigned int stride)
 {
     auto line = Rule();
     for (auto i = 0u; i < count; ++i)
@@ -14,7 +14,7 @@ Rule Rule::createLine(const Puzzle & puzzle, unsigned int startIndex, unsigned i
     return line;
 }
 
-Rule Rule::createBlock(const Puzzle & puzzle, unsigned int row, unsigned int column, unsigned int size)
+Rule Rule::createBlock(Puzzle & puzzle, unsigned int row, unsigned int column, unsigned int size)
 {
     auto block = Rule();
     for (auto i = 0u; i < size; ++i)

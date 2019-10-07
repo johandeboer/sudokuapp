@@ -7,15 +7,15 @@ class Cell
 {
 public:
     Cell();
-    explicit Cell(int noDigits);
+    explicit Cell(unsigned int noDigits);
 
-    int digitCount() { return mDigits; }
-    int longSide() { return mSqrt; }
-    int shortSide() { return static_cast<int>(std::ceil(mDigits / mSqrt)); }
+    unsigned int digitCount() { return mDigits; }
+    unsigned int longSide() { return mSqrt; }
+    unsigned int shortSide() { return static_cast<unsigned int>(std::ceil(mDigits / mSqrt)); }
 
 private:
-    int mDigits;
-    int mSqrt;
+    unsigned int mDigits;
+    unsigned int mSqrt;
 };
 
 }

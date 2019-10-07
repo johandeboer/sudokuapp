@@ -2,20 +2,21 @@
 
 #include <vector>
 #include "Cell.h"
-#include "Rule.h"
 
 namespace Sudoku
 {
+
+class Rule;
 
 class Puzzle
 {
 public:
     using Grid = std::vector<Cell>;
 
-    Puzzle(int columns, int rows);
+    Puzzle(unsigned int columns, unsigned int rows);
 
-    int columns() const { return mColumns; }
-    int rows() const { return mRows; }
+    unsigned int columns() const { return mColumns; }
+    unsigned int rows() const { return mRows; }
     Grid grid() const { return mGrid; }
 
     void addRule(const Sudoku::Rule & rule);
@@ -24,8 +25,8 @@ public:
     Cell * cell(unsigned int row, unsigned int column);
 
 private:
-    int mColumns;
-    int mRows;
+    unsigned int mColumns;
+    unsigned int mRows;
     Grid mGrid;
     std::vector<Rule> mRules;
 };

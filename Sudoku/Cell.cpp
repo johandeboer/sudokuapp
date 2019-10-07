@@ -7,8 +7,8 @@ Cell::Cell() : Cell(9)
 {
 }
 
-Cell::Cell(int noDigits) :
+Cell::Cell(unsigned int noDigits) :
     mDigits(noDigits),
-    mSqrt(static_cast<int>(std::ceil(std::sqrt(noDigits))))
+    mSqrt(static_cast<unsigned int>(std::ceil(std::sqrt(noDigits))))
 {
 }

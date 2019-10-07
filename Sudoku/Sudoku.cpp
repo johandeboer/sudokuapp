@@ -1,10 +1,11 @@
 #include "pch.h"
 #include "Sudoku.h"
 #include "Cell.h"
+#include "Rule.h"
 
 using namespace Sudoku;
 
-Puzzle::Puzzle(int columns, int rows) :
+Puzzle::Puzzle(unsigned int columns, unsigned int rows) :
     mColumns(columns),
     mRows(rows)
 {

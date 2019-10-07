@@ -2,6 +2,8 @@
 #include "MainPage.h"
 #include "MainPage.g.cpp"
 #include <winrt\Windows.UI.Xaml.Controls.h>
+#include "Cell.h"
+#include "Rule.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
@@ -22,7 +24,7 @@ namespace winrt::SudokuApp::implementation
         return mSudokuRtc;
     }
 
-    void MainPage::fillGrid(const Sudoku::Puzzle & puzzle)
+    void MainPage::fillGrid(Sudoku::Puzzle & puzzle)
     {
         auto grid = MainPage::sudokuGrid();
 
@@ -42,7 +44,7 @@ namespace winrt::SudokuApp::implementation
         }
     }
 
-    void MainPage::fillCell(const Grid & grid, Cell * cell, int row, int column)
+    void MainPage::fillCell(const Grid & grid, Cell * cell, unsigned int row, unsigned int column)
     {
         auto cellGrid = Grid();
 
@@ -58,8 +60,8 @@ namespace winrt::SudokuApp::implementation
             cellGrid.RowDefinitions().Append({});
         }
 
-        auto r = 0;
-        auto c = 0;
+        auto r = 0u;
+        auto c = 0u;
         for (auto i = 0u; i < cell->digitCount(); i++)
         {
             auto text = TextBlock();
