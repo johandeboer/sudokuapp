@@ -14,7 +14,10 @@ namespace winrt::SudokuApp::implementation
 
     private:
         void fillGrid(Sudoku::Puzzle & puzzle);
-        void fillCell(const winrt::Windows::UI::Xaml::Controls::Grid & grid, Sudoku::Cell * cell, unsigned int row, unsigned int column);
+        void fillClue(const Windows::UI::Xaml::Controls::Grid & grid, Sudoku::Cell * cell, unsigned int row, unsigned int column);
+        void fillCell(const Windows::UI::Xaml::Controls::Grid & grid, Sudoku::Cell * cell, unsigned int row, unsigned int column);
+
+        Windows::Foundation::IAsyncAction loadPuzzle(std::string filename);
 
         Sudoku::Puzzle puzzle = Sudoku::Puzzle(9, 9);
         winrt::SudokuApp::SudokuRtc mSudokuRtc{ nullptr };

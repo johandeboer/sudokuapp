@@ -1,13 +1,21 @@
 ﻿#include "pch.h"
 #include "MainPage.h"
 #include "MainPage.g.cpp"
-#include <winrt\Windows.UI.Xaml.Controls.h>
+#include <winrt/Windows.UI.Xaml.Controls.h>
+#include "winrt/Windows.Storage.h"
+#include "winrt/Windows.UI.Text.h"
+#include "winrt/Windows.UI.Xaml.Media.h"
 #include "Cell.h"
 #include "Rule.h"
+#include "Loader.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
-using namespace winrt::Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Media;
+using namespace Windows::UI::Text;
+using namespace Windows::Storage;
+using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::Foundation;
 using namespace Sudoku;
 
 namespace winrt::SudokuApp::implementation
@@ -16,6 +24,22 @@ namespace winrt::SudokuApp::implementation
     {
         mSudokuRtc = winrt::make<winrt::SudokuApp::implementation::SudokuRtc>();
         InitializeComponent();
+
+        auto result = loadPuzzle(R"(puzzles\example1.sudoku)");
+    }
+
+    IAsyncAction MainPage::loadPuzzle(std::string filename)
+    {
+        winrt::apartment_context ui_thread;
+        co_await winrt::resume_background();
+
+        auto file = co_await KnownFolders::DocumentsLibrary().GetFileAsync(winrt::to_hstring(filename));
+        auto text = co_await Windows::Storage::FileIO::ReadTextAsync(file);
+
+        co_await ui_thread; 
+
+        puzzle = Loader::parseText(winrt::to_string(text));
+
         fillGrid(puzzle);
     }
 
@@ -39,9 +63,28 @@ namespace winrt::SudokuApp::implementation
             for (auto column = 0u; column < puzzle.columns(); column++)
             {
                 auto cell = puzzle.cell(row, column);
-                fillCell(grid, cell, row, column);
+                if (cell->clue() == -1)
+                {
+                    fillCell(grid, cell, row, column);
+                }
+                else
+                {
+                    fillClue(grid, cell, row, column);
+                }
             }
         }
+    }
+
+    void MainPage::fillClue(const Grid & grid, Cell * cell, unsigned int row, unsigned int column)
+    {
+        auto text = TextBlock();
+        text.Text(winrt::to_hstring(std::to_string(cell->clue())));
+        text.TextAlignment(TextAlignment::Center);
+        text.FontSize(5*11);
+        text.FontWeight(FontWeights::Bold());
+        Grid::SetColumn(text, column);
+        Grid::SetRow(text, row);
+        grid.Children().Append(text);
     }
 
     void MainPage::fillCell(const Grid & grid, Cell * cell, unsigned int row, unsigned int column)
@@ -65,12 +108,13 @@ namespace winrt::SudokuApp::implementation
         for (auto i = 0u; i < cell->digitCount(); i++)
         {
             auto text = TextBlock();
+            text.Text(winrt::to_hstring(std::to_string(i)));
+            text.Foreground(SolidColorBrush(Windows::UI::Colors::DimGray()));
 
             Grid::SetRow(text, r);
             Grid::SetColumn(text, c);
 
-            text.Text(winrt::to_hstring(std::to_string(i)));
-            cellGrid.Margin(ThicknessHelper::FromUniformLength(15));
+            cellGrid.Margin(ThicknessHelper::FromUniformLength(10));
             cellGrid.Children().Append(text);
 
             if (++c >= cell->longSide())

@@ -12,3 +12,13 @@ Cell::Cell(unsigned int noDigits) :
     mSqrt(static_cast<unsigned int>(std::ceil(std::sqrt(noDigits))))
 {
 }
+
+void Sudoku::Cell::setClue(int clue)
+{
+    mClue = clue;
+}
+
+int Sudoku::Cell::clue()
+{
+    return mClue;
+}

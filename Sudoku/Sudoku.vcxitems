@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Cell.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Loader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)RuleFactory.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Sudoku.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Rule.h" />
@@ -22,6 +23,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)Cell.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Loader.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)RuleFactory.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Sudoku.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Rule.cpp" />

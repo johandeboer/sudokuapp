@@ -18,7 +18,7 @@ Puzzle::Puzzle(unsigned int columns, unsigned int rows) :
 
 void Puzzle::addRule(const Rule & rule)
 {
-    mRules.push_back(std::move(rule));
+    mRules.push_back(rule);
 }
 
 Cell * Puzzle::cell(unsigned int index)

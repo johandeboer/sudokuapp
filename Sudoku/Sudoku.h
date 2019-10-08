@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "Cell.h"
+#include "Rule.h"
 
 namespace Sudoku
 {
@@ -19,7 +20,7 @@ public:
     unsigned int rows() const { return mRows; }
     Grid grid() const { return mGrid; }
 
-    void addRule(const Sudoku::Rule & rule);
+    void addRule(const Rule & rule);
 
     Cell * cell(unsigned int index);
     Cell * cell(unsigned int row, unsigned int column);
