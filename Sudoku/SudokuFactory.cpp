@@ -9,22 +9,28 @@ using namespace Sudoku;
 Puzzle SudokuFactory::plainSudoku()
 {
     unsigned int k = 3;
-    unsigned int n = k*k;
-    auto puzzle = Puzzle(n, n);
+    unsigned int n = k * k;
+    auto puzzle = Puzzle(n, n, n);
+    makePlainRules(puzzle);
+    return puzzle;
+}
+
+void SudokuFactory::makePlainRules(Puzzle & puzzle)
+{
+    auto n = puzzle.rows();
+    auto k = static_cast<unsigned int>(sqrt(n));
 
     for (auto i = 0u; i < n; ++i)
     {
         // rows
-        puzzle.addRule(RuleFactory::createHorizontalLine(puzzle, i, 0, n));
+        RuleFactory::createHorizontalLine(puzzle, i, 0, n);
         // columns
-        puzzle.addRule(RuleFactory::createVerticalLine(puzzle, 0, i, n));
+        RuleFactory::createVerticalLine(puzzle, 0, i, n);
     }
 
     for (auto i = 0u; i < n; i += k)
     for (auto j = 0u; j < n; j += k)
     {
-        puzzle.addRule(RuleFactory::createBlock(puzzle, i, j, k));
+        RuleFactory::createBlock(puzzle, i, j, k);
     }
-
-    return puzzle;
 }

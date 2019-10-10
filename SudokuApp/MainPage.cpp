@@ -39,7 +39,6 @@ namespace winrt::SudokuApp::implementation
         co_await ui_thread; 
 
         puzzle = Loader::parseText(winrt::to_string(text));
-
         fillGrid(puzzle);
     }
 
@@ -89,16 +88,19 @@ namespace winrt::SudokuApp::implementation
 
     void MainPage::fillCell(const Grid & grid, Cell * cell, unsigned int row, unsigned int column)
     {
+        auto longSide = static_cast<unsigned int>(std::ceil(std::sqrt(cell->digitCount())));
+        auto shortSide = static_cast<unsigned int>(std::ceil(cell->digitCount() / longSide));
+
         auto cellGrid = Grid();
 
         Grid::SetColumn(cellGrid, column);
         Grid::SetRow(cellGrid, row);
 
-        for (auto i = 0u; i < cell->longSide(); i++)
+        for (auto i = 0u; i < longSide; i++)
         {
             cellGrid.ColumnDefinitions().Append({});
         }
-        for (auto i = 0u; i < cell->shortSide(); i++)
+        for (auto i = 0u; i < shortSide; i++)
         {
             cellGrid.RowDefinitions().Append({});
         }
@@ -117,7 +119,7 @@ namespace winrt::SudokuApp::implementation
             cellGrid.Margin(ThicknessHelper::FromUniformLength(10));
             cellGrid.Children().Append(text);
 
-            if (++c >= cell->longSide())
+            if (++c >= longSide)
             {
                 c = 0;
                 ++r;

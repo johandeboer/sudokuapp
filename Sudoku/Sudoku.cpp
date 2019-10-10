@@ -5,20 +5,22 @@
 
 using namespace Sudoku;
 
-Puzzle::Puzzle(unsigned int columns, unsigned int rows) :
+Puzzle::Puzzle(unsigned int columns, unsigned int rows, unsigned int digits) :
     mColumns(columns),
-    mRows(rows)
+    mRows(rows),
+    mDigits(digits),
+    mRules(std::vector<Rule>(rows * columns))
 {
     auto cells = rows * columns;
     for (auto i = 0u; i < cells; i++)
     {
-        mGrid.emplace_back(Cell(columns));
+        mGrid.emplace_back(Cell(digits));
     }
 }
 
-void Puzzle::addRule(const Rule & rule)
+void Puzzle::addRule(const Rule && rule)
 {
-    mRules.push_back(rule);
+    mRules.emplace_back(std::move(rule));
 }
 
 Cell * Puzzle::cell(unsigned int index)

@@ -16,4 +16,10 @@ void Rule::setCells(std::vector<Cell *> cells)
 void Rule::addCell(Cell * cell)
 {
     mCells.push_back(cell);
+    cell->addRule(this);
+}
+
+const std::vector<Cell *> & Rule::cells()
+{
+    return mCells;
 }

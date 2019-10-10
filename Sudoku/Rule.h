@@ -5,6 +5,7 @@
 
 namespace Sudoku
 {
+class Cell;
 
 class Rule
 {
@@ -12,6 +13,7 @@ public:
     Rule();
 
     void addCell(Cell * cell);
+    const std::vector<Cell *> & cells();
 
     virtual std::string name() { return "rule"; }
 

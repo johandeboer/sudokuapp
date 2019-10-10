@@ -19,7 +19,7 @@ namespace winrt::SudokuApp::implementation
 
         Windows::Foundation::IAsyncAction loadPuzzle(std::string filename);
 
-        Sudoku::Puzzle puzzle = Sudoku::Puzzle(9, 9);
+        Sudoku::Puzzle puzzle = Sudoku::Puzzle(9, 9, 9);
         winrt::SudokuApp::SudokuRtc mSudokuRtc{ nullptr };
     };
 }

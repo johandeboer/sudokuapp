@@ -8,19 +8,24 @@ namespace Sudoku
 {
 
 class Rule;
+class Cell;
 
 class Puzzle
 {
 public:
-    using Grid = std::vector<Cell>;
+    Puzzle(unsigned int columns, unsigned int rows, unsigned int digits);
 
-    Puzzle(unsigned int columns, unsigned int rows);
+    Puzzle(const Puzzle &) = delete;
+    Puzzle & operator =(Puzzle const &) = delete;
+    Puzzle(const Puzzle &&) = delete;
+    Puzzle & operator =(Puzzle const &&) = delete;
 
     unsigned int columns() const { return mColumns; }
     unsigned int rows() const { return mRows; }
-    Grid grid() const { return mGrid; }
+    unsigned int digits() const { return mDigits; }
+    std::vector<Cell> grid() const { return mGrid; }
 
-    void addRule(const Rule & rule);
+    void addRule(const Rule && rule);
 
     Cell * cell(unsigned int index);
     Cell * cell(unsigned int row, unsigned int column);
@@ -28,7 +33,8 @@ public:
 private:
     unsigned int mColumns;
     unsigned int mRows;
-    Grid mGrid;
+    unsigned int mDigits;
+    std::vector<Cell> mGrid;
     std::vector<Rule> mRules;
 };
 

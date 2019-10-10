@@ -3,23 +3,29 @@
 namespace Sudoku
 {
 
+class Rule;
+
 class Cell
 {
 public:
     Cell();
     explicit Cell(unsigned int noDigits);
 
-    void setClue(int clue);
     int clue();
+    void setClue(unsigned int clue);
+
+    void unset(unsigned int digit);
+
+    void addRule(Rule * rule);
 
     unsigned int digitCount() { return mDigits; }
-    unsigned int longSide() { return mSqrt; }
-    unsigned int shortSide() { return static_cast<unsigned int>(std::ceil(mDigits / mSqrt)); }
 
 private:
     unsigned int mDigits;
-    unsigned int mSqrt;
+    uint64_t mBits;
     int mClue = -1;
+
+    std::vector<Rule *> mRules;
 };
 
 }
