@@ -12,16 +12,17 @@ class Rule
 public:
     Rule();
 
-    void addCell(Cell * cell);
-    const std::vector<Cell *> & cells();
+    Rule(Rule &) = delete;
+    Rule & operator = (Rule &) = delete;
+
+    void addCell(std::shared_ptr<Cell> cell);
+    const std::vector<std::shared_ptr<Cell>> & cells();
+    bool contains(const std::shared_ptr<Cell> & cell);
 
     virtual std::string name() { return "rule"; }
 
-protected:
-    void setCells(std::vector<Cell *> cells);
-
 private:
-    std::vector<Cell *> mCells;
+    std::vector<std::shared_ptr<Cell>> mCells;
 };
 
 class HorizontalRule : public Rule

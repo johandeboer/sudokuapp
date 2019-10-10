@@ -8,7 +8,7 @@ namespace Sudoku
 class Loader
 {
 public:
-    static Puzzle parseText(std::string text);
+    static std::shared_ptr<Puzzle> parseText(std::string text);
 };
 
 }

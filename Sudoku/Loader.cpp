@@ -5,7 +5,7 @@
 
 using namespace Sudoku;
 
-Puzzle Sudoku::Loader::parseText(std::string text)
+std::shared_ptr<Puzzle> Sudoku::Loader::parseText(std::string text)
 {
     auto ss = std::stringstream(text);
 
@@ -13,8 +13,8 @@ Puzzle Sudoku::Loader::parseText(std::string text)
     unsigned int rows, columns, digits;
     ss >> name >> rows >> columns >> digits;
 
-    auto puzzle = new Puzzle(rows, columns, digits);
-    SudokuFactory::makePlainRules(*puzzle);
+    auto puzzle = std::make_shared<Puzzle>(rows, columns, digits);
+    SudokuFactory::makePlainRules(puzzle);
 
     std::string line;
     unsigned int row = 0;
@@ -25,11 +25,11 @@ Puzzle Sudoku::Loader::parseText(std::string text)
             auto ch = line[column];
             if (ch != '-')
             {
-                (*puzzle).cell(row, column)->setClue(ch - '0');
+                puzzle->cell(row, column)->setClue(ch - '0');
             }
         }
         ++row;
     }
 
-    return std::move(*puzzle);
+    return puzzle;
 }

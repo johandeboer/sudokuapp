@@ -13,14 +13,15 @@ namespace winrt::SudokuApp::implementation
         SudokuApp::SudokuRtc SudokuViewModel();
 
     private:
-        void fillGrid(Sudoku::Puzzle & puzzle);
-        void fillClue(const Windows::UI::Xaml::Controls::Grid & grid, Sudoku::Cell * cell, unsigned int row, unsigned int column);
-        void fillCell(const Windows::UI::Xaml::Controls::Grid & grid, Sudoku::Cell * cell, unsigned int row, unsigned int column);
+        void fillGrid(const std::shared_ptr<Sudoku::Puzzle> & puzzle);
+        void addBorders(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Puzzle> & puzzle);
+        void fillClue(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Cell> & cell, unsigned int row, unsigned int column);
+        void fillCell(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Cell> & cell, unsigned int row, unsigned int column);
 
         Windows::Foundation::IAsyncAction loadPuzzle(std::string filename);
 
-        Sudoku::Puzzle puzzle = Sudoku::Puzzle(9, 9, 9);
-        winrt::SudokuApp::SudokuRtc mSudokuRtc{ nullptr };
+        std::shared_ptr<Sudoku::Puzzle> mPuzzle { nullptr };
+        winrt::SudokuApp::SudokuRtc mSudokuRtc { nullptr };
     };
 }
 

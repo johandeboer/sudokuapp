@@ -8,18 +8,18 @@ Rule::Rule()
 {
 }
 
-void Rule::setCells(std::vector<Cell *> cells) 
-{
-    mCells = cells;
-}
-
-void Rule::addCell(Cell * cell)
+void Rule::addCell(std::shared_ptr<Cell> cell)
 {
     mCells.push_back(cell);
-    cell->addRule(this);
 }
 
-const std::vector<Cell *> & Rule::cells()
+const std::vector< std::shared_ptr<Cell>> & Rule::cells()
 {
     return mCells;
+}
+
+bool Sudoku::Rule::contains(const std::shared_ptr<Cell> & cell)
+{
+    auto iter = std::find(mCells.begin(), mCells.end(), cell);
+    return iter != mCells.end();
 }

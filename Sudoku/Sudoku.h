@@ -13,29 +13,33 @@ class Cell;
 class Puzzle
 {
 public:
-    Puzzle(unsigned int columns, unsigned int rows, unsigned int digits);
+    Puzzle(std::size_t columns, std::size_t rows, unsigned int digits);
 
     Puzzle(const Puzzle &) = delete;
     Puzzle & operator =(Puzzle const &) = delete;
     Puzzle(const Puzzle &&) = delete;
     Puzzle & operator =(Puzzle const &&) = delete;
 
-    unsigned int columns() const { return mColumns; }
-    unsigned int rows() const { return mRows; }
+    std::size_t columns() const { return mColumns; }
+    std::size_t rows() const { return mRows; }
     unsigned int digits() const { return mDigits; }
-    std::vector<Cell> grid() const { return mGrid; }
+    std::vector<std::shared_ptr<Cell>> grid() const { return mGrid; }
+    std::pair<unsigned int, unsigned int> getCoords(std::shared_ptr<Cell> cell);
 
-    void addRule(const Rule && rule);
+    const std::vector<std::shared_ptr<Rule>> & rules();
+    void addRule(std::shared_ptr<Rule> && rule);
 
-    Cell * cell(unsigned int index);
-    Cell * cell(unsigned int row, unsigned int column);
+    std::shared_ptr<Cell> cell(size_t index);
+    std::shared_ptr<Cell> cell(size_t row, size_t column);
+
+    unsigned int clueSweep();
 
 private:
-    unsigned int mColumns;
-    unsigned int mRows;
+    std::size_t mColumns;
+    std::size_t mRows;
     unsigned int mDigits;
-    std::vector<Cell> mGrid;
-    std::vector<Rule> mRules;
+    std::vector<std::shared_ptr<Cell>> mGrid;
+    std::vector<std::shared_ptr<Rule>> mRules;
 };
 
 }

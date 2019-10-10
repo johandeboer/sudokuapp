@@ -25,7 +25,7 @@ namespace winrt::SudokuApp::implementation
         mSudokuRtc = winrt::make<winrt::SudokuApp::implementation::SudokuRtc>();
         InitializeComponent();
 
-        auto result = loadPuzzle(R"(puzzles\example1.sudoku)");
+        auto result = loadPuzzle(R"(puzzles\example3.sudoku)");
     }
 
     IAsyncAction MainPage::loadPuzzle(std::string filename)
@@ -38,8 +38,9 @@ namespace winrt::SudokuApp::implementation
 
         co_await ui_thread; 
 
-        puzzle = Loader::parseText(winrt::to_string(text));
-        fillGrid(puzzle);
+        mPuzzle = Loader::parseText(winrt::to_string(text));
+        while (mPuzzle->clueSweep() > 0) {}
+        fillGrid(mPuzzle);
     }
 
     SudokuApp::SudokuRtc MainPage::SudokuViewModel()
@@ -47,21 +48,21 @@ namespace winrt::SudokuApp::implementation
         return mSudokuRtc;
     }
 
-    void MainPage::fillGrid(Sudoku::Puzzle & puzzle)
+    void MainPage::fillGrid(const std::shared_ptr<Sudoku::Puzzle> & puzzle)
     {
         auto grid = MainPage::sudokuGrid();
 
-        for (auto i = 0u; i < puzzle.columns(); i++)
+        for (auto i = 0u; i < puzzle->columns(); i++)
         {
             grid.ColumnDefinitions().Append({});
             grid.RowDefinitions().Append({});
         }
 
-        for (auto row = 0u; row < puzzle.rows(); row++)
+        for (auto row = 0u; row < puzzle->rows(); row++)
         {
-            for (auto column = 0u; column < puzzle.columns(); column++)
+            for (auto column = 0u; column < puzzle->columns(); column++)
             {
-                auto cell = puzzle.cell(row, column);
+                auto cell = puzzle->cell(row, column);
                 if (cell->clue() == -1)
                 {
                     fillCell(grid, cell, row, column);
@@ -72,21 +73,51 @@ namespace winrt::SudokuApp::implementation
                 }
             }
         }
+
+        addBorders(grid, puzzle);
     }
 
-    void MainPage::fillClue(const Grid & grid, Cell * cell, unsigned int row, unsigned int column)
+    void MainPage::addBorders(const Grid & grid, const std::shared_ptr<Sudoku::Puzzle> & puzzle)
+    {
+        auto brush = SolidColorBrush(Windows::UI::Colors::Black());
+        for (const auto & rule : puzzle->rules())
+        {
+            if (auto blockRule = std::dynamic_pointer_cast<BlockRule>(rule); blockRule != nullptr)
+            {
+                for (const auto & cell : blockRule->cells())
+                {
+                    auto [row, column] = puzzle->getCoords(cell);
+
+                    auto border = Border();
+                    Grid::SetColumn(border, column);
+                    Grid::SetRow(border, row);
+
+                    auto top = row == 0 || !rule->contains(puzzle->cell(row - 1, column));
+                    auto left = column == 0 || !rule->contains(puzzle->cell(row, column - 1));
+                    auto right = column == puzzle->columns() - 1;
+                    auto bottom = row == puzzle->rows() - 1;
+
+                    border.BorderThickness(ThicknessHelper::FromLengths(left ? 1 : 0, top ? 1 : 0, right ? 1 : 0, bottom ? 1 : 0));
+                    border.BorderBrush(brush);
+                    grid.Children().Append(border);
+                }
+            }
+        }
+    }
+
+    void MainPage::fillClue(const Grid & grid, const std::shared_ptr<Cell> & cell, unsigned int row, unsigned int column)
     {
         auto text = TextBlock();
         text.Text(winrt::to_hstring(std::to_string(cell->clue())));
         text.TextAlignment(TextAlignment::Center);
-        text.FontSize(5*11);
+        text.FontSize(5.0*11.0);
         text.FontWeight(FontWeights::Bold());
         Grid::SetColumn(text, column);
         Grid::SetRow(text, row);
         grid.Children().Append(text);
     }
 
-    void MainPage::fillCell(const Grid & grid, Cell * cell, unsigned int row, unsigned int column)
+    void MainPage::fillCell(const Grid & grid, const std::shared_ptr<Cell> & cell, unsigned int row, unsigned int column)
     {
         auto longSide = static_cast<unsigned int>(std::ceil(std::sqrt(cell->digitCount())));
         auto shortSide = static_cast<unsigned int>(std::ceil(cell->digitCount() / longSide));
@@ -107,17 +138,20 @@ namespace winrt::SudokuApp::implementation
 
         auto r = 0u;
         auto c = 0u;
-        for (auto i = 0u; i < cell->digitCount(); i++)
+        for (auto i = 1u; i <= cell->digitCount(); i++)
         {
-            auto text = TextBlock();
-            text.Text(winrt::to_hstring(std::to_string(i)));
-            text.Foreground(SolidColorBrush(Windows::UI::Colors::DimGray()));
+            if (cell->isSet(i))
+            {
+                auto text = TextBlock();
+                text.Text(winrt::to_hstring(std::to_string(i)));
+                text.Foreground(SolidColorBrush(Windows::UI::Colors::DimGray()));
 
-            Grid::SetRow(text, r);
-            Grid::SetColumn(text, c);
+                Grid::SetRow(text, r);
+                Grid::SetColumn(text, c);
 
-            cellGrid.Margin(ThicknessHelper::FromUniformLength(10));
-            cellGrid.Children().Append(text);
+                cellGrid.Margin(ThicknessHelper::FromUniformLength(10));
+                cellGrid.Children().Append(text);
+            }
 
             if (++c >= longSide)
             {

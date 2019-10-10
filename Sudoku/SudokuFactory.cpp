@@ -6,18 +6,18 @@
 
 using namespace Sudoku;
 
-Puzzle SudokuFactory::plainSudoku()
+std::shared_ptr<Puzzle> SudokuFactory::plainSudoku()
 {
     unsigned int k = 3;
     unsigned int n = k * k;
-    auto puzzle = Puzzle(n, n, n);
+    auto puzzle = std::make_shared<Puzzle>(n, n, n);
     makePlainRules(puzzle);
     return puzzle;
 }
 
-void SudokuFactory::makePlainRules(Puzzle & puzzle)
+void SudokuFactory::makePlainRules(const std::shared_ptr<Puzzle> & puzzle)
 {
-    auto n = puzzle.rows();
+    auto n = puzzle->rows();
     auto k = static_cast<unsigned int>(sqrt(n));
 
     for (auto i = 0u; i < n; ++i)
