@@ -32,9 +32,12 @@ public:
     std::shared_ptr<Cell> cell(size_t index);
     std::shared_ptr<Cell> cell(size_t row, size_t column);
 
-    unsigned int clueSweep();
+    unsigned int sweepClues();
+    unsigned int sweepUniques();
 
 private:
+    std::pair<std::shared_ptr<Cell>, unsigned int> findUnique(const std::shared_ptr<Rule> & rule);
+
     std::size_t mColumns;
     std::size_t mRows;
     unsigned int mDigits;

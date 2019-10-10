@@ -45,7 +45,7 @@ std::shared_ptr<Cell> Puzzle::cell(std::size_t row, std::size_t column)
     return mGrid[row * mColumns + column];
 }
 
-unsigned int Puzzle::clueSweep()
+unsigned int Puzzle::sweepClues()
 {
     unsigned int changes = 0u;
     for (const auto & cell : mGrid)
@@ -62,4 +62,56 @@ unsigned int Puzzle::clueSweep()
     }
 
     return changes;
+}
+
+unsigned int Puzzle::sweepUniques()
+{
+    auto changes = 0u;
+
+    for (const auto & rule : mRules)
+    {
+        auto [cell, digit] = findUnique(rule);
+        if (cell != nullptr)
+        {
+            cell->setClue(digit);
+            changes++;
+        }
+    }
+
+    return changes;
+}
+
+std::pair<std::shared_ptr<Cell>, unsigned int> Puzzle::findUnique(const std::shared_ptr<Rule> & rule)
+{
+    for (auto digit = 1u; digit <= mDigits; digit++)
+    {
+        std::shared_ptr<Cell> foundCell = nullptr;
+        bool unique = true;
+
+        for (const auto & cell : rule->cells())
+        {
+            if (cell->clue() == digit)
+            {
+                break;
+            }
+
+            if (cell->isSet(digit))
+            {
+                if (foundCell != nullptr)
+                {
+                    unique = false;
+                    break;
+                }
+
+                foundCell = cell;
+            }
+        }
+
+        if (unique && foundCell != nullptr)
+        {
+            return { foundCell, digit };
+        }
+    }
+
+    return { nullptr, 0 };
 }

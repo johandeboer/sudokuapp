@@ -39,7 +39,14 @@ namespace winrt::SudokuApp::implementation
         co_await ui_thread; 
 
         mPuzzle = Loader::parseText(winrt::to_string(text));
-        while (mPuzzle->clueSweep() > 0) {}
+
+        bool finished = false;
+        while (!finished) {
+            auto cluesChanges = mPuzzle->sweepClues();
+            auto uniqueChanges = mPuzzle->sweepUniques();
+            finished = cluesChanges == 0 && uniqueChanges == 0;
+        }
+
         fillGrid(mPuzzle);
     }
 
