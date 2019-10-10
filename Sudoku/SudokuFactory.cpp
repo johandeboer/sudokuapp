@@ -23,9 +23,9 @@ void SudokuFactory::makePlainRules(const std::shared_ptr<Puzzle> & puzzle)
     for (auto i = 0u; i < n; ++i)
     {
         // rows
-        RuleFactory::createHorizontalLine(puzzle, i, 0, n);
+        RuleFactory::createHorizontalLine(puzzle, i, 0, static_cast<unsigned int>(n));
         // columns
-        RuleFactory::createVerticalLine(puzzle, 0, i, n);
+        RuleFactory::createVerticalLine(puzzle, 0, i, static_cast<unsigned int>(n));
     }
 
     for (auto i = 0u; i < n; i += k)

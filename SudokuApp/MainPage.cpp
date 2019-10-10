@@ -96,8 +96,8 @@ namespace winrt::SudokuApp::implementation
                     auto [row, column] = puzzle->getCoords(cell);
 
                     auto border = Border();
-                    Grid::SetColumn(border, column);
-                    Grid::SetRow(border, row);
+                    Grid::SetColumn(border, static_cast<int>(column));
+                    Grid::SetRow(border, static_cast<int>(row));
 
                     auto top = row == 0 || !rule->contains(puzzle->cell(row - 1, column));
                     auto left = column == 0 || !rule->contains(puzzle->cell(row, column - 1));

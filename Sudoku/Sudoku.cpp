@@ -16,7 +16,7 @@ Puzzle::Puzzle(std::size_t columns, std::size_t rows, unsigned int digits) :
     }
 }
 
-std::pair<unsigned int, unsigned int> Sudoku::Puzzle::getCoords(std::shared_ptr<Cell> cell)
+std::pair<size_t, size_t> Sudoku::Puzzle::getCoords(std::shared_ptr<Cell> cell)
 {
     auto iter = std::find(mGrid.begin(), mGrid.end(), cell);
     auto index = std::distance(mGrid.begin(), iter);
@@ -93,6 +93,11 @@ std::pair<std::shared_ptr<Cell>, unsigned int> Puzzle::findUnique(const std::sha
             if (cell->clue() == digit)
             {
                 break;
+            }
+
+            if (cell->hasClue())
+            {
+                continue;
             }
 
             if (cell->isSet(digit))

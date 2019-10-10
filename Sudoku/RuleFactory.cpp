@@ -3,7 +3,7 @@
 
 using namespace Sudoku;
 
-void RuleFactory::createHorizontalLine(const std::shared_ptr<Puzzle> & puzzle, unsigned int row, unsigned int column, unsigned int count)
+void RuleFactory::createHorizontalLine(const std::shared_ptr<Puzzle> & puzzle, size_t row, size_t column, unsigned int count)
 {
     auto line = std::make_shared<HorizontalRule>();
     for (auto i = 0u; i < count; ++i)
@@ -15,7 +15,7 @@ void RuleFactory::createHorizontalLine(const std::shared_ptr<Puzzle> & puzzle, u
     puzzle->addRule(std::move(line));
 }
 
-void RuleFactory::createVerticalLine(const std::shared_ptr<Puzzle> & puzzle, unsigned int row, unsigned int column, unsigned int count)
+void RuleFactory::createVerticalLine(const std::shared_ptr<Puzzle> & puzzle, size_t row, size_t column, unsigned int count)
 {
     auto line = std::make_shared<VerticalRule>();
     for (auto i = 0u; i < count; ++i)
@@ -27,7 +27,7 @@ void RuleFactory::createVerticalLine(const std::shared_ptr<Puzzle> & puzzle, uns
     puzzle->addRule(std::move(line));
 }
 
-void RuleFactory::createBlock(const std::shared_ptr<Puzzle> & puzzle, unsigned int row, unsigned int column, unsigned int size)
+void RuleFactory::createBlock(const std::shared_ptr<Puzzle> & puzzle, size_t row, size_t column, unsigned int size)
 {
     auto block = std::make_shared<BlockRule>();
     for (auto i = 0u; i < size; ++i)

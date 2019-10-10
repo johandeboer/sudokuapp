@@ -24,7 +24,7 @@ public:
     std::size_t rows() const { return mRows; }
     unsigned int digits() const { return mDigits; }
     std::vector<std::shared_ptr<Cell>> grid() const { return mGrid; }
-    std::pair<unsigned int, unsigned int> getCoords(std::shared_ptr<Cell> cell);
+    std::pair<size_t, size_t> getCoords(std::shared_ptr<Cell> cell);
 
     const std::vector<std::shared_ptr<Rule>> & rules();
     void addRule(std::shared_ptr<Rule> && rule);

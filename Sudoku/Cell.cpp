@@ -17,6 +17,7 @@ Cell::Cell(unsigned int noDigits) :
 void Cell::setClue(unsigned int clue)
 {
     mClue = clue;
+    mBits = 0;
 
     for (const auto & rule : mRules)
     {
