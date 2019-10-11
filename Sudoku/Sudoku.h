@@ -3,12 +3,14 @@
 #include <vector>
 #include "Cell.h"
 #include "Rule.h"
+#include "Overlap.h"
 
 namespace Sudoku
 {
 
 class Rule;
 class Cell;
+class Overlap;
 
 class Puzzle
 {
@@ -43,6 +45,7 @@ private:
     unsigned int mDigits;
     std::vector<std::shared_ptr<Cell>> mGrid;
     std::vector<std::shared_ptr<Rule>> mRules;
+    std::vector<Overlap> mOverlaps;
 };
 
 }

@@ -2,6 +2,7 @@
 #include "Sudoku.h"
 #include "Cell.h"
 #include "Rule.h"
+#include "Overlap.h"
 
 using namespace Sudoku;
 
@@ -30,9 +31,17 @@ const std::vector<std::shared_ptr<Rule>> & Sudoku::Puzzle::rules()
     return mRules;
 }
 
-void Puzzle::addRule(std::shared_ptr<Rule> && rule)
+void Puzzle::addRule(std::shared_ptr<Rule> && newRule)
 {
-    mRules.emplace_back(std::move(rule));
+    for (const auto & rule : mRules)
+    {
+        if (Overlap::overlaps(rule, newRule))
+        {
+            mOverlaps.emplace_back(rule, newRule);
+        }
+    }
+
+    mRules.emplace_back(std::move(newRule));
 }
 
 std::shared_ptr<Cell> Puzzle::cell(std::size_t index)
