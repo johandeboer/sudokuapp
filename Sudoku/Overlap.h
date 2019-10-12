@@ -17,6 +17,10 @@ public:
 
     static bool overlaps(const std::shared_ptr<Rule> & ruleA, const std::shared_ptr<Rule> & ruleB);
 
+    const std::vector<std::shared_ptr<Cell>> & overlap() const { return mOverlap; }
+    const std::vector<std::shared_ptr<Cell>> & nonOverlapA() const { return mNonOverlapA; }
+    const std::vector<std::shared_ptr<Cell>> & nonOverlapB() const { return mNonOverlapB; }
+
 private:
     std::shared_ptr<Rule> mRuleA;
     std::shared_ptr<Rule> mRuleB;

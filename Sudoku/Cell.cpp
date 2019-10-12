@@ -10,7 +10,7 @@ Cell::Cell() : Cell(9)
 
 Cell::Cell(unsigned int noDigits) :
     mDigits(noDigits),
-    mBits((1 << noDigits) - 1)
+    mBits((1 << static_cast<decltype(mBits)>(noDigits)) - 1)
 {
 }
 
@@ -44,6 +44,7 @@ bool Cell::isSet(unsigned int digit)
     return (mBits & mask) != 0;
 }
 
+// TODO: rename?
 std::optional<unsigned int> Sudoku::Cell::isSolved()
 {
     uint64_t clueBits = 1;

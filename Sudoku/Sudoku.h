@@ -26,19 +26,22 @@ public:
     std::size_t rows() const { return mRows; }
     unsigned int digits() const { return mDigits; }
     std::vector<std::shared_ptr<Cell>> grid() const { return mGrid; }
-    std::pair<size_t, size_t> getCoords(std::shared_ptr<Cell> cell);
+    std::pair<size_t, size_t> toRowColumn(std::shared_ptr<Cell> cell);
 
     const std::vector<std::shared_ptr<Rule>> & rules();
     void addRule(std::shared_ptr<Rule> && rule);
 
     std::shared_ptr<Cell> cell(size_t index);
     std::shared_ptr<Cell> cell(size_t row, size_t column);
+    void removeCell(std::size_t row, std::size_t column);
 
     unsigned int sweepClues();
     unsigned int sweepUniques();
+    unsigned int sweepOverlaps();
 
 private:
     std::pair<std::shared_ptr<Cell>, unsigned int> findUnique(const std::shared_ptr<Rule> & rule);
+    unsigned int sweepOverlap(const std::vector<std::shared_ptr<Cell>> & overlap, const std::vector<std::shared_ptr<Cell>> & nonOverlapA, const std::vector<std::shared_ptr<Cell>> & nonOverlapB);
 
     std::size_t mColumns;
     std::size_t mRows;

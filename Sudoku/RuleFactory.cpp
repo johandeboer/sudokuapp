@@ -27,6 +27,19 @@ void RuleFactory::createVerticalLine(const std::shared_ptr<Puzzle> & puzzle, siz
     puzzle->addRule(std::move(line));
 }
 
+void RuleFactory::createDiagonalLine(const std::shared_ptr<Puzzle> & puzzle, size_t index, unsigned int count, int stride)
+{
+    auto line = std::make_shared<DiagonalRule>(stride);
+    for (auto i = 0u; i < count; ++i)
+    {
+        auto cell = puzzle->cell(index);
+        line->addCell(cell);
+        cell->addRule(line);
+        index += stride;
+    }
+    puzzle->addRule(std::move(line));
+}
+
 void RuleFactory::createBlock(const std::shared_ptr<Puzzle> & puzzle, size_t row, size_t column, unsigned int size)
 {
     auto block = std::make_shared<BlockRule>();

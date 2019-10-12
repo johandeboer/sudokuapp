@@ -37,6 +37,17 @@ public:
     std::string name() override { return "vertical"; }
 };
 
+class DiagonalRule : public Rule
+{
+public:
+    explicit DiagonalRule(int stride) : Rule(), mStride(stride) {};
+
+    std::string name() override { return "diagonal"; }
+    int stride() const { return mStride; }
+private:
+    int mStride;
+};
+
 class BlockRule : public Rule
 {
 public:

@@ -7,6 +7,30 @@ Overlap::Overlap(const std::shared_ptr<Rule> & ruleA, const std::shared_ptr<Rule
     mRuleA(ruleA),
     mRuleB(ruleB)
 {
+    auto contains = [](const std::vector<std::shared_ptr<Cell>> & cells, const std::shared_ptr<Cell> & cell) {
+        auto iter = std::find(cells.begin(), cells.end(), cell);
+        return iter != cells.end();
+    };
+
+    for (const auto & cellA : ruleA->cells())
+    {
+        if (contains(ruleB->cells(), cellA))
+        {
+            mOverlap.push_back(cellA);
+        }
+        else
+        {
+            mNonOverlapA.push_back(cellA);
+        }
+    }
+
+    for (const auto & cellB : ruleB->cells())
+    {
+        if (!contains(mOverlap, cellB))
+        {
+            mNonOverlapB.push_back(cellB);
+        }
+    }
 }
 
 bool Overlap::overlaps(const std::shared_ptr<Rule> & ruleA, const std::shared_ptr<Rule> & ruleB)
@@ -15,5 +39,6 @@ bool Overlap::overlaps(const std::shared_ptr<Rule> & ruleA, const std::shared_pt
     all.insert(all.begin(), ruleB->cells().begin(), ruleB->cells().end());
     std::sort(all.begin(), all.end());
     auto last = std::unique(all.begin(), all.end());
-    return last != all.end();
+    auto coverCount = std::distance(last, all.end());
+    return coverCount > 1;
 }

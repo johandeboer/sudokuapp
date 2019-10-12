@@ -17,7 +17,7 @@ Puzzle::Puzzle(std::size_t columns, std::size_t rows, unsigned int digits) :
     }
 }
 
-std::pair<size_t, size_t> Sudoku::Puzzle::getCoords(std::shared_ptr<Cell> cell)
+std::pair<size_t, size_t> Sudoku::Puzzle::toRowColumn(std::shared_ptr<Cell> cell)
 {
     auto iter = std::find(mGrid.begin(), mGrid.end(), cell);
     auto index = std::distance(mGrid.begin(), iter);
@@ -54,12 +54,18 @@ std::shared_ptr<Cell> Puzzle::cell(std::size_t row, std::size_t column)
     return mGrid[row * mColumns + column];
 }
 
+void Puzzle::removeCell(std::size_t row, std::size_t column)
+{
+    assert(mGrid[row * mColumns + column]->rules().size() == 0);
+    mGrid[row * mColumns + column].reset();
+}
+
 unsigned int Puzzle::sweepClues()
 {
     unsigned int changes = 0u;
     for (const auto & cell : mGrid)
     {
-        if (!cell->hasClue())
+        if (cell != nullptr && !cell->hasClue())
         {
             auto clue = cell->isSolved();
             if (clue.has_value())
@@ -128,4 +134,53 @@ std::pair<std::shared_ptr<Cell>, unsigned int> Puzzle::findUnique(const std::sha
     }
 
     return { nullptr, 0 };
+}
+
+unsigned int Puzzle::sweepOverlaps()
+{
+    auto changes = 0u;
+
+    for (const auto & overlap : mOverlaps)
+    {
+        changes += sweepOverlap(overlap.overlap(), overlap.nonOverlapA(), overlap.nonOverlapB());
+        changes += sweepOverlap(overlap.overlap(), overlap.nonOverlapB(), overlap.nonOverlapA());
+    }
+
+    return changes;
+}
+
+unsigned int Puzzle::sweepOverlap(
+    const std::vector<std::shared_ptr<Cell>> & overlap,
+    const std::vector<std::shared_ptr<Cell>> & nonOverlapA,
+    const std::vector<std::shared_ptr<Cell>> & nonOverlapB)
+{
+    auto changes = 0;
+
+    for (auto digit = 1u; digit <= mDigits; digit++)
+    {
+        auto isSet = [digit](const auto & cell) { return cell->isSet(digit); };
+
+        auto count = std::count_if(overlap.begin(), overlap.end(), isSet);
+        if (count < 2)
+        {
+            continue;
+        }
+
+        auto inA = std::any_of(nonOverlapA.begin(), nonOverlapA.end(), isSet);
+        if (inA)
+        {
+            continue;
+        }
+
+        for (const auto & cell : nonOverlapB)
+        {
+            if (cell->isSet(digit))
+            {
+                cell->unset(digit);
+                ++changes;
+            }
+        }
+    }
+
+    return changes;
 }
