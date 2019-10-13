@@ -15,6 +15,7 @@ namespace winrt::SudokuApp::implementation
     private:
         void fillGrid(const std::shared_ptr<Sudoku::Puzzle> & puzzle);
         void addBorders(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Puzzle> & puzzle);
+        void addDiagonals(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Puzzle> & puzzle);
         void fillClue(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Cell> & cell, unsigned int row, unsigned int column);
         void fillCell(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Cell> & cell, unsigned int row, unsigned int column);
 

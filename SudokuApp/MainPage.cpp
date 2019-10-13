@@ -5,13 +5,17 @@
 #include "winrt/Windows.Storage.h"
 #include "winrt/Windows.UI.Text.h"
 #include "winrt/Windows.UI.Xaml.Media.h"
+#include "winrt/Windows.UI.Xaml.Shapes.h"
 #include "Cell.h"
 #include "Rule.h"
 #include "Loader.h"
+#include <chrono>
+#include <iostream>
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Media;
+using namespace Windows::UI::Xaml::Shapes;
 using namespace Windows::UI::Text;
 using namespace Windows::Storage;
 using namespace Windows::UI::Xaml::Controls;
@@ -25,7 +29,7 @@ namespace winrt::SudokuApp::implementation
         mSudokuRtc = winrt::make<winrt::SudokuApp::implementation::SudokuRtc>();
         InitializeComponent();
 
-        auto result = loadPuzzle(R"(puzzles\example4.sudoku)");
+        auto result = loadPuzzle(R"(puzzles\sudoku-mix-330.sudoku)");
     }
 
     IAsyncAction MainPage::loadPuzzle(std::string filename)
@@ -40,6 +44,8 @@ namespace winrt::SudokuApp::implementation
 
         mPuzzle = Loader::parseText(winrt::to_string(text));
 
+        auto start = std::chrono::system_clock::now();
+
         while (true) {
             auto changes = 0u;
             changes += mPuzzle->sweepClues();
@@ -51,6 +57,10 @@ namespace winrt::SudokuApp::implementation
                 break;
             }
         }
+
+        auto end = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
         fillGrid(mPuzzle);
     }
@@ -69,6 +79,8 @@ namespace winrt::SudokuApp::implementation
             grid.ColumnDefinitions().Append({});
             grid.RowDefinitions().Append({});
         }
+
+        addDiagonals(grid, puzzle);
 
         for (auto row = 0u; row < puzzle->rows(); row++)
         {
@@ -92,6 +104,33 @@ namespace winrt::SudokuApp::implementation
         }
 
         addBorders(grid, puzzle);
+    }
+
+    void MainPage::addDiagonals(const Grid & grid, const std::shared_ptr<Sudoku::Puzzle> & puzzle)
+    {
+        SolidColorBrush brush { Windows::UI::Colors::LightGray() };
+        auto width = grid.Width() / puzzle->columns();
+        auto height = grid.Height() / puzzle->rows();
+        double length = (width > height ? width : height);
+
+        for (const auto & rule : puzzle->rules())
+        {
+            if (auto diagonalRule = std::dynamic_pointer_cast<DiagonalRule>(rule); diagonalRule != nullptr)
+            {
+                for (const auto & cell : diagonalRule->cells())
+                {
+                    auto line = Line();
+                    line.X1(diagonalRule->stride() > puzzle->columns() ? 0 : length);
+                    line.X2(diagonalRule->stride() > puzzle->columns() ? length : 0);
+                    line.Y2(length);
+                    line.Stroke(brush);
+                    auto [row, column] = puzzle->toRowColumn(cell);
+                    Grid::SetColumn(line, static_cast<int>(column));
+                    Grid::SetRow(line, static_cast<int>(row));
+                    grid.Children().Append(line);
+                }
+            }
+        }
     }
 
     void MainPage::addBorders(const Grid & grid, const std::shared_ptr<Sudoku::Puzzle> & puzzle)
