@@ -29,11 +29,13 @@ namespace winrt::SudokuApp::implementation
         mSudokuRtc = winrt::make<winrt::SudokuApp::implementation::SudokuRtc>();
         InitializeComponent();
 
-        auto result = loadPuzzle(R"(puzzles\sudoku-mix-330.sudoku)");
+        auto result = loadPuzzle(R"(puzzles\sudoku-mix-334.sudoku)");
     }
 
     IAsyncAction MainPage::loadPuzzle(std::string filename)
     {
+        logTextBlock().Text(winrt::to_hstring("Loading " + filename));;
+
         winrt::apartment_context ui_thread;
         co_await winrt::resume_background();
 
@@ -47,9 +49,7 @@ namespace winrt::SudokuApp::implementation
         auto start = std::chrono::system_clock::now();
 
         while (true) {
-            auto changes = 0u;
-            changes += mPuzzle->sweepClues();
-            changes += mPuzzle->sweepUniques();
+            auto changes = mPuzzle->sweepUniques();
             changes += mPuzzle->sweepOverlaps();
 
             if (changes == 0)

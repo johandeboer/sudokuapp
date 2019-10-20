@@ -14,6 +14,11 @@ Cell::Cell(unsigned int noDigits) :
 {
 }
 
+int Cell::clue()
+{
+    return mClue;
+}
+
 void Cell::setClue(unsigned int clue)
 {
     mClue = clue;
@@ -23,6 +28,7 @@ void Cell::setClue(unsigned int clue)
     {
         for (const auto & cell : rule->cells())
         {
+            assert(cell.get() == this || (cell.get() != this && cell->clue() != clue));
             cell->unset(clue);
         }
     }
@@ -72,9 +78,4 @@ const std::vector<std::shared_ptr<Rule>> & Sudoku::Cell::rules()
 void Cell::addRule(const std::shared_ptr<Rule> & rule)
 {
     mRules.push_back(rule);
-}
-
-int Cell::clue()
-{
-    return mClue;
 }
