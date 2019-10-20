@@ -1,7 +1,7 @@
 ﻿#include "pch.h"
 #include "MainPage.h"
 #include "MainPage.g.cpp"
-#include <winrt/Windows.UI.Xaml.Controls.h>
+#include "winrt/Windows.UI.Xaml.Controls.h"
 #include "winrt/Windows.Storage.h"
 #include "winrt/Windows.UI.Text.h"
 #include "winrt/Windows.UI.Xaml.Media.h"
@@ -28,13 +28,14 @@ namespace winrt::SudokuApp::implementation
     {
         mSudokuRtc = winrt::make<winrt::SudokuApp::implementation::SudokuRtc>();
         InitializeComponent();
-
-        auto result = loadPuzzle(R"(puzzles\sudoku-mix-334.sudoku)");
+        auto textBlock = std::make_shared<TextBlock>(logTextBlock());
+        mLogger = std::make_shared<Logger>(textBlock);
+        auto result = loadPuzzle(R"(puzzles\sudoku-mix-333.sudoku)");
     }
 
     IAsyncAction MainPage::loadPuzzle(std::string filename)
     {
-        logTextBlock().Text(winrt::to_hstring("Loading " + filename));;
+        mLogger->log("Loading " + filename);
 
         winrt::apartment_context ui_thread;
         co_await winrt::resume_background();
@@ -60,7 +61,7 @@ namespace winrt::SudokuApp::implementation
 
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+        mLogger->log("Elapsed time: " + std::to_string(elapsed_seconds.count()) + "s");
 
         fillGrid(mPuzzle);
     }

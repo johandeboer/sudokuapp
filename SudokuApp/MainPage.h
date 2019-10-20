@@ -3,6 +3,7 @@
 #include "MainPage.g.h"
 #include "Sudoku.h"
 #include "SudokuRtc.h"
+#include "Logger.h"
 
 namespace winrt::SudokuApp::implementation
 {
@@ -23,6 +24,7 @@ namespace winrt::SudokuApp::implementation
 
         std::shared_ptr<Sudoku::Puzzle> mPuzzle { nullptr };
         winrt::SudokuApp::SudokuRtc mSudokuRtc { nullptr };
+        std::shared_ptr<Logger> mLogger { nullptr };
     };
 }
 

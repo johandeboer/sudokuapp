@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Cell.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ILogger.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Loader.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Overlap.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)RuleFactory.h" />
