@@ -29,7 +29,7 @@ public:
 
 private:
     unsigned int mDigits;
-    uint64_t mBits;
+    uint64_t mBits; // FIXME: candidates?
     int mClue = -1;
 
     std::vector<std::shared_ptr<Rule>> mRules;

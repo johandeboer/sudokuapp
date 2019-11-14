@@ -7,6 +7,7 @@ namespace Sudoku
 {
 class Cell;
 
+// FIXME: also called region?
 class Rule
 {
 public:
@@ -48,6 +49,7 @@ private:
     int mStride;
 };
 
+// FIXME: this is called a nonet
 class BlockRule : public Rule
 {
 public:

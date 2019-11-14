@@ -78,7 +78,7 @@ void Puzzle::removeCell(std::size_t row, std::size_t column)
     mGrid[row * mColumns + column].reset();
 }
 
-// FIXME: this rule is a specialization of sweepUniques
+// This routine finds "naked singles", it's a specialization of sweepUniques
 unsigned int Puzzle::sweepClues()
 {
     unsigned int changes = 0u;
@@ -98,6 +98,9 @@ unsigned int Puzzle::sweepClues()
     return changes;
 }
 
+// This routine finds:
+// - naked singles
+// - hidden singles
 unsigned int Puzzle::sweepUniques()
 {
     auto changes = 0u;
@@ -157,6 +160,10 @@ std::pair<std::shared_ptr<Cell>, unsigned int> Puzzle::findUnique(const std::sha
     return { nullptr, 0 };
 }
 
+// This routine applies the following strategies:
+// - pointing pairs?
+// - pointing triples?
+// - box line reduction
 unsigned int Puzzle::sweepOverlaps()
 {
     auto changes = 0u;
@@ -192,6 +199,7 @@ unsigned int Puzzle::sweepOverlap(
             continue;
         }
 
+        // is digit a locked candidate?
         auto inA = std::any_of(nonOverlapA.begin(), nonOverlapA.end(), isSet);
         if (inA)
         {

@@ -39,11 +39,13 @@ bool Sudoku::Cell::hasClue()
     return mClue != -1;
 }
 
+// FIXME: not used?!?
 void Cell::unset(unsigned int digit)
 {
     mBits &= ~(1 << (digit - 1));
 }
 
+// candidate
 bool Cell::isSet(unsigned int digit)
 {
     auto mask = 1 << (static_cast<uint64_t>(digit) - 1);

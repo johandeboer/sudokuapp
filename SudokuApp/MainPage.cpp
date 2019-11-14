@@ -30,7 +30,7 @@ namespace winrt::SudokuApp::implementation
         InitializeComponent();
         auto textBlock = std::make_shared<TextBlock>(logTextBlock());
         mLogger = std::make_shared<Logger>(textBlock);
-        auto result = loadPuzzle(R"(puzzles\sudoku-mix-334.sudoku)");
+        auto result = loadPuzzle(R"(puzzles\extreme1.sudoku)");
     }
 
     IAsyncAction MainPage::loadPuzzle(std::string filename)
@@ -54,7 +54,7 @@ namespace winrt::SudokuApp::implementation
         while (true) {
             mLogger->log("sweep " + std::to_string(sweepCount));
 
-            auto changes = mPuzzle->sweepUniques();
+            auto changes = mPuzzle->sweepUniques(); /// FIXME: sweep -> scan(ning)
             changes += mPuzzle->sweepOverlaps();
             totalChanges += changes;
 

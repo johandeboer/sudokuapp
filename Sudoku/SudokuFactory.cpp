@@ -47,6 +47,7 @@ void SudokuFactory::makeMixRules(const std::shared_ptr<Puzzle> & puzzle, std::st
         puzzle->addRule(blockRules.back());
     }
 
+    // FIXME: these are called polyomino region
     for (auto row = 0u; row < n; row++)
     {
         *ss >> line;
