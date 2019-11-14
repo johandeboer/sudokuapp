@@ -7,11 +7,11 @@
 
 using namespace Sudoku;
 
-std::shared_ptr<Puzzle> SudokuFactory::plainSudoku()
+std::shared_ptr<Puzzle> SudokuFactory::plainSudoku(ILogger * logger)
 {
     unsigned int k = 3;
     unsigned int n = k * k;
-    auto puzzle = std::make_shared<Puzzle>(n, n, n);
+    auto puzzle = std::make_shared<Puzzle>(n, n, n, logger);
     makePlainRules(puzzle);
     return puzzle;
 }
@@ -36,13 +36,12 @@ void SudokuFactory::makePlainRules(const std::shared_ptr<Puzzle> & puzzle)
 
 void SudokuFactory::makeMixRules(const std::shared_ptr<Puzzle> & puzzle, std::stringstream * ss)
 {
-    auto n = 9;
-    auto k = 3;
+    auto n = 9u;
+    auto k = 3u;
 
     std::string line;
-    auto m = 8u;
     auto blockRules = std::vector<std::shared_ptr<BlockRule>>();
-    for (auto i = 0u; i < m; i++)
+    for (auto i = 0u; i < 8u; i++)
     {
         blockRules.emplace_back(std::make_shared<BlockRule>());
         puzzle->addRule(blockRules.back());
@@ -67,12 +66,12 @@ void SudokuFactory::makeMixRules(const std::shared_ptr<Puzzle> & puzzle, std::st
         }
     }
 
-    for (auto i = 0u; i < n; ++i)
+    for (size_t i = 0; i < n; ++i)
     {
-        RuleFactory::createHorizontalLine(puzzle, i, 0, static_cast<unsigned int>(n));
-        RuleFactory::createHorizontalLine(puzzle, i + 6, 6, static_cast<unsigned int>(n));
-        RuleFactory::createVerticalLine(puzzle, 0, i, static_cast<unsigned int>(n));
-        RuleFactory::createVerticalLine(puzzle, 6, i + 6, static_cast<unsigned int>(n));
+        RuleFactory::createHorizontalLine(puzzle, i, 0, n);
+        RuleFactory::createHorizontalLine(puzzle, i + 6, 6, n);
+        RuleFactory::createVerticalLine(puzzle, 0, i, n);
+        RuleFactory::createVerticalLine(puzzle, 6, i + 6, n);
     }
 
     for (auto i = 0u; i < n; i += k)

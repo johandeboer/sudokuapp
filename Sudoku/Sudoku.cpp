@@ -6,10 +6,11 @@
 
 using namespace Sudoku;
 
-Puzzle::Puzzle(std::size_t columns, std::size_t rows, unsigned int digits) :
+Puzzle::Puzzle(std::size_t columns, std::size_t rows, unsigned int digits, ILogger * logger) :
     mColumns(columns),
     mRows(rows),
-    mDigits(digits)
+    mDigits(digits),
+    mLogger(logger)
 {
     for (std::size_t i = 0; i < rows * columns; i++)
     {
@@ -17,7 +18,7 @@ Puzzle::Puzzle(std::size_t columns, std::size_t rows, unsigned int digits) :
     }
 }
 
-std::pair<size_t, size_t> Sudoku::Puzzle::toRowColumn(std::shared_ptr<Cell> cell)
+std::pair<size_t, size_t> Puzzle::toRowColumn(std::shared_ptr<Cell> cell)
 {
     auto iter = std::find(mGrid.begin(), mGrid.end(), cell);
     auto index = std::distance(mGrid.begin(), iter);
@@ -26,7 +27,24 @@ std::pair<size_t, size_t> Sudoku::Puzzle::toRowColumn(std::shared_ptr<Cell> cell
     return { row, column };
 }
 
-const std::vector<std::shared_ptr<Rule>> & Sudoku::Puzzle::rules()
+std::string Puzzle::toRowColString(std::shared_ptr<Cell> cell)
+{
+    auto [row, col] = toRowColumn(cell);
+    return "[" + std::to_string(row) + "," + std::to_string(col) + "]";
+}
+
+std::string Sudoku::Puzzle::toString(const std::vector<std::shared_ptr<Cell>> & cells)
+{
+    std::string str;
+    for (const auto & cell : cells)
+    {
+        str.append(toRowColString(cell) + " ");
+    }
+    str.pop_back();
+    return str;
+}
+
+const std::vector<std::shared_ptr<Rule>> & Puzzle::rules()
 {
     return mRules;
 }
@@ -60,6 +78,7 @@ void Puzzle::removeCell(std::size_t row, std::size_t column)
     mGrid[row * mColumns + column].reset();
 }
 
+// FIXME: this rule is a specialization of sweepUniques
 unsigned int Puzzle::sweepClues()
 {
     unsigned int changes = 0u;
@@ -90,6 +109,8 @@ unsigned int Puzzle::sweepUniques()
         {
             cell->setClue(digit);
             changes++;
+
+            mLogger->log("unique: found " + std::to_string(digit) + " @ " + toRowColString(cell));
         }
     }
 
@@ -142,8 +163,13 @@ unsigned int Puzzle::sweepOverlaps()
 
     for (const auto & overlap : mOverlaps)
     {
+        // FIXME
         changes += sweepOverlap(overlap.overlap(), overlap.nonOverlapA(), overlap.nonOverlapB());
+        if (changes > 0)
+            return changes;
         changes += sweepOverlap(overlap.overlap(), overlap.nonOverlapB(), overlap.nonOverlapA());
+        if (changes > 0)
+            return changes;
     }
 
     return changes;
@@ -161,7 +187,7 @@ unsigned int Puzzle::sweepOverlap(
         auto isSet = [digit](const auto & cell) { return cell->isSet(digit); };
 
         auto count = std::count_if(overlap.begin(), overlap.end(), isSet);
-        if (count < 2)
+        if (count < 2) // FIXME: why 2?
         {
             continue;
         }
@@ -172,13 +198,21 @@ unsigned int Puzzle::sweepOverlap(
             continue;
         }
 
+        std::string logStr;
         for (const auto & cell : nonOverlapB)
         {
             if (cell->isSet(digit))
             {
                 cell->unset(digit);
                 ++changes;
+
+                logStr += toRowColString(cell) + " ";
             }
+        }
+        if (!logStr.empty())
+        {
+            mLogger->log("overlap: remove " + std::to_string(digit) + " @ " + logStr);
+            return changes; // FIXME
         }
     }
 

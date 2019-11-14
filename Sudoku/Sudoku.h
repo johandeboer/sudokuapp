@@ -4,6 +4,7 @@
 #include "Cell.h"
 #include "Rule.h"
 #include "Overlap.h"
+#include "ILogger.h"
 
 namespace Sudoku
 {
@@ -15,7 +16,7 @@ class Overlap;
 class Puzzle
 {
 public:
-    Puzzle(std::size_t columns, std::size_t rows, unsigned int digits);
+    Puzzle(std::size_t columns, std::size_t rows, unsigned int digits, ILogger * logger);
 
     Puzzle(const Puzzle &) = delete;
     Puzzle & operator =(Puzzle const &) = delete;
@@ -27,6 +28,9 @@ public:
     unsigned int digits() const { return mDigits; }
     std::vector<std::shared_ptr<Cell>> grid() const { return mGrid; }
     std::pair<size_t, size_t> toRowColumn(std::shared_ptr<Cell> cell);
+
+    std::string toRowColString(std::shared_ptr<Cell> cell);
+    std::string toString(const std::vector<std::shared_ptr<Cell>> & cells);
 
     const std::vector<std::shared_ptr<Rule>> & rules();
     void addRule(std::shared_ptr<Rule> && rule);
@@ -49,6 +53,7 @@ private:
     std::vector<std::shared_ptr<Cell>> mGrid;
     std::vector<std::shared_ptr<Rule>> mRules;
     std::vector<Overlap> mOverlaps;
+    ILogger * mLogger;
 };
 
 }

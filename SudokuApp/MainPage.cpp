@@ -30,7 +30,7 @@ namespace winrt::SudokuApp::implementation
         InitializeComponent();
         auto textBlock = std::make_shared<TextBlock>(logTextBlock());
         mLogger = std::make_shared<Logger>(textBlock);
-        auto result = loadPuzzle(R"(puzzles\sudoku-mix-333.sudoku)");
+        auto result = loadPuzzle(R"(puzzles\sudoku-mix-334.sudoku)");
     }
 
     IAsyncAction MainPage::loadPuzzle(std::string filename)
@@ -45,23 +45,29 @@ namespace winrt::SudokuApp::implementation
 
         co_await ui_thread; 
 
-        mPuzzle = Loader::parseText(winrt::to_string(text));
+        mPuzzle = Loader::parseText(winrt::to_string(text), mLogger.get());
 
         auto start = std::chrono::system_clock::now();
+        auto totalChanges = 0u;
+        auto sweepCount = 0u;
 
         while (true) {
+            mLogger->log("sweep " + std::to_string(sweepCount));
+
             auto changes = mPuzzle->sweepUniques();
             changes += mPuzzle->sweepOverlaps();
+            totalChanges += changes;
 
             if (changes == 0)
             {
                 break;
             }
+            sweepCount++;
         }
 
         auto end = std::chrono::system_clock::now();
         std::chrono::duration<double> elapsed_seconds = end - start;
-        mLogger->log("Elapsed time: " + std::to_string(elapsed_seconds.count()) + "s");
+        mLogger->log(std::to_string(totalChanges) + " steps in " + std::to_string(elapsed_seconds.count() * 1000.0) + "ms");
 
         fillGrid(mPuzzle);
     }
@@ -77,7 +83,9 @@ namespace winrt::SudokuApp::implementation
 
         for (auto i = 0u; i < puzzle->columns(); i++)
         {
+            ColumnDefinition column{};
             grid.ColumnDefinitions().Append({});
+            RowDefinition row{};
             grid.RowDefinitions().Append({});
         }
 
@@ -93,13 +101,13 @@ namespace winrt::SudokuApp::implementation
                     continue;
                 }
 
-                if (cell->clue() == -1)
+                if (cell->hasClue())
                 {
-                    fillCell(grid, cell, row, column);
+                    fillClue(grid, cell, row, column);
                 }
                 else
                 {
-                    fillClue(grid, cell, row, column);
+                    fillCell(grid, cell, row, column);
                 }
             }
         }
@@ -110,9 +118,8 @@ namespace winrt::SudokuApp::implementation
     void MainPage::addDiagonals(const Grid & grid, const std::shared_ptr<Sudoku::Puzzle> & puzzle)
     {
         SolidColorBrush brush { Windows::UI::Colors::LightGray() };
-        auto width = grid.Width() / puzzle->columns();
-        auto height = grid.Height() / puzzle->rows();
-        double length = (width > height ? width : height);
+        auto width = grid.ActualWidth() / puzzle->columns();
+        auto height = grid.ActualHeight() / puzzle->rows();
 
         for (const auto & rule : puzzle->rules())
         {
@@ -121,9 +128,9 @@ namespace winrt::SudokuApp::implementation
                 for (const auto & cell : diagonalRule->cells())
                 {
                     auto line = Line();
-                    line.X1(diagonalRule->stride() > puzzle->columns() ? 0 : length);
-                    line.X2(diagonalRule->stride() > puzzle->columns() ? length : 0);
-                    line.Y2(length);
+                    line.X1(diagonalRule->stride() > puzzle->columns() ? 0 : width);
+                    line.X2(diagonalRule->stride() > puzzle->columns() ? width : 0);
+                    line.Y2(height);
                     line.Stroke(brush);
                     auto [row, column] = puzzle->toRowColumn(cell);
                     Grid::SetColumn(line, static_cast<int>(column));
@@ -202,6 +209,7 @@ namespace winrt::SudokuApp::implementation
                 auto text = TextBlock();
                 text.Text(winrt::to_hstring(std::to_string(i)));
                 text.Foreground(SolidColorBrush(Windows::UI::Colors::DimGray()));
+                text.FontSize(10.0);
 
                 Grid::SetRow(text, r);
                 Grid::SetColumn(text, c);

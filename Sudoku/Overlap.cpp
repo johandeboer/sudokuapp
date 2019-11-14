@@ -39,6 +39,6 @@ bool Overlap::overlaps(const std::shared_ptr<Rule> & ruleA, const std::shared_pt
     all.insert(all.begin(), ruleB->cells().begin(), ruleB->cells().end());
     std::sort(all.begin(), all.end());
     auto last = std::unique(all.begin(), all.end());
-    auto coverCount = std::distance(last, all.end());
-    return coverCount > 1;
+    auto overlapCount = std::distance(last, all.end());
+    return overlapCount > 1; // FIXME: overlapCount = 1 is ignored, so function does not per se return overlap
 }

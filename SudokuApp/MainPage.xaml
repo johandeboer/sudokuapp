@@ -7,8 +7,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal">
-        <Grid x:Name="sudokuGrid" Width="800" Height="800" Margin="25 25 25 25"/>
-        <TextBlock x:Name="logTextBlock" Width="auto" Margin ="25 25 25 25"/>
-    </StackPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="sudokuGrid" Margin="25 25 25 25" Grid.Column="0" Grid.Row="0"/>
+        <ScrollViewer Margin ="25 25 25 25" Grid.Column="1" Grid.Row="0">
+            <TextBlock x:Name="logTextBlock"/>
+        </ScrollViewer>
+    </Grid>
 </Page>

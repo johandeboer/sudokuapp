@@ -5,7 +5,7 @@
 
 using namespace Sudoku;
 
-std::shared_ptr<Puzzle> Sudoku::Loader::parseText(std::string text)
+std::shared_ptr<Puzzle> Sudoku::Loader::parseText(std::string text, ILogger * logger)
 {
     auto ss = std::stringstream(text);
 
@@ -13,7 +13,7 @@ std::shared_ptr<Puzzle> Sudoku::Loader::parseText(std::string text)
     unsigned int rows, columns, digits;
     ss >> name >> rows >> columns >> digits;
 
-    auto puzzle = std::make_shared<Puzzle>(rows, columns, digits);
+    auto puzzle = std::make_shared<Puzzle>(rows, columns, digits, logger);
 
     if (name == "plain")
     {
