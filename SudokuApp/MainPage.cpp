@@ -11,6 +11,8 @@
 #include "Loader.h"
 #include <chrono>
 #include <iostream>
+#include "../ExactCover/Element.h"
+#include "../ExactCover/ExactCover.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
@@ -30,6 +32,9 @@ namespace winrt::SudokuApp::implementation
         InitializeComponent();
         auto textBlock = std::make_shared<TextBlock>(logTextBlock());
         mLogger = std::make_shared<Logger>(textBlock);
+
+        testDLX();
+
         auto result = loadPuzzle(R"(puzzles\extreme1.sudoku)");
     }
 
@@ -226,5 +231,104 @@ namespace winrt::SudokuApp::implementation
         }
 
         grid.Children().Append(cellGrid);
+    }
+
+    void MainPage::testDLX()
+    {
+        std::vector<std::string> columnNames = { "A", "B", "C", "D", "E", "F", "G" };
+        std::vector<std::vector<int>> matrix = {
+            {0, 0, 1, 0, 1, 1, 0},
+            {1, 0, 0, 1, 0, 0, 1},
+            {0, 1, 1, 0, 0, 1, 0},
+            {1, 0, 0, 1, 0, 0, 0},
+            {0, 1, 0, 0, 0, 0, 1},
+            {0, 0, 0, 1, 1, 0, 1}
+        };
+
+/*
+        // example from Wikipedia
+        // https://en.wikipedia.org/wiki/Knuth%27s_Algorithm_X
+        std::vector<std::string> columnNames = { "1", "2", "3", "4", "5", "6", "7" };
+        std::vector<std::vector<int>> matrix = {
+            {1, 0, 0, 1, 0, 0, 1},
+            {1, 0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 1, 1, 0, 1},
+            {0, 0, 1, 0, 1, 1, 0},
+            {0, 1, 1, 0, 0, 1, 1},
+            {0, 1, 0, 0, 0, 0, 1}
+        };
+*/
+        auto nRows = matrix.size();
+        auto nColumns = matrix[0].size();
+
+        auto head = ExactCover::Head();
+        auto columns = std::vector<ExactCover::Column>();
+        auto elements = std::vector<std::vector<ExactCover::Element>>(nRows);
+
+        // TODO: check
+        assert(nColumns > 1);
+        assert(nRows > 1);
+
+        for (auto row = 0u; row < nRows; row++)
+        for (auto col = 0u; col < nColumns; col++)
+        {
+            if (row == 0)
+            {
+                columns.emplace_back<ExactCover::Column>({});
+                columns[col].name = columnNames[col];
+            }
+            elements[row].emplace_back<ExactCover::Element>({});
+        }
+
+        for (auto col = 0u; col < columns.size(); col++)
+        {
+            auto & column = columns[col];
+
+            column.name = columnNames[col];
+            column.up = &elements[nRows - 1][col];
+            column.down = &elements[0][col];
+            column.left = col == 0 ? &head : &columns[col - 1];
+            column.right = col == nColumns - 1 ? &head : &columns[col + 1];
+        }
+
+        head.right = &columns[0];
+        head.left = &columns[nColumns - 1];
+
+        for (auto row = 0u; row < nRows; row++)
+        for (auto col = 0u; col < nColumns; col++)
+        {
+            auto & element = elements[row][col];
+
+            element.row = row;
+            element.col = col;
+
+            element.column = &columns[col];
+
+            element.up = row == 0 ? &columns[col] : &elements[row - 1][col];
+            element.down = row == nRows - 1 ? &columns[col] : &elements[row + 1][col];
+            element.left = &elements[row][col == 0 ? nColumns - 1 : col - 1];
+            element.right = &elements[row][col == nColumns - 1 ? 0 : col + 1];
+        }
+
+        for (auto row = 0u; row < nRows; row++)
+        for (auto col = 0u; col < nColumns; col++)
+        {
+            if (matrix[row][col] == 0)
+            {
+                auto & element = elements[row][col];
+                element.right->left = element.left;
+                element.left->right = element.right;
+                element.down->up = element.up;
+                element.up->down = element.down;
+            }
+            else
+            {
+                columns[col].size++;
+            }
+        }
+
+        auto solver = ExactCover::Solver();
+        auto solution = solver.search(&head, 0, {}, *mLogger);
+        solver.log(solution, *mLogger);
     }
 }

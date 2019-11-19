@@ -8,7 +8,8 @@ namespace Sudoku
 class ILogger
 {
 public:
-    virtual void log(std::string text) = 0;
+    virtual void log(const std::string & text) const = 0;
+    virtual void operator()(const std::string & text) const = 0;
 };
 
 }

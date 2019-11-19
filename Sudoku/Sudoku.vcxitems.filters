@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Cell.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Loader.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Overlap.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)RuleFactory.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Sudoku.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Rule.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SudokuFactory.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\ExactCover\ExactCover.cpp">
+      <Filter>Algorithm</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Cell.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ILogger.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Loader.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Overlap.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)RuleFactory.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Sudoku.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Rule.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SudokuFactory.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\ExactCover\Element.h">
+      <Filter>Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\ExactCover\ExactCover.h">
+      <Filter>Algorithm</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Algorithm">
+      <UniqueIdentifier>{ca329c66-789d-4073-9dd0-a3631f495ad0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

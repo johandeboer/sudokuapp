@@ -20,6 +20,8 @@ namespace winrt::SudokuApp::implementation
         void fillClue(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Cell> & cell, unsigned int row, unsigned int column);
         void fillCell(const Windows::UI::Xaml::Controls::Grid & grid, const std::shared_ptr<Sudoku::Cell> & cell, unsigned int row, unsigned int column);
 
+        void testDLX();
+
         Windows::Foundation::IAsyncAction loadPuzzle(std::string filename);
 
         std::shared_ptr<Sudoku::Puzzle> mPuzzle { nullptr };

@@ -7,8 +7,13 @@ Logger::Logger(std::shared_ptr<TextBlock> textBlock) : mTextBlock(textBlock)
 {
 }
 
-void Logger::log(std::string text)
+void Logger::log(const std::string & text) const
 {
     auto newText = mTextBlock->Text() + winrt::to_hstring(text + "\n");
     mTextBlock->Text(newText);
+}
+
+void Logger::operator()(const std::string & text) const
+{
+    log(text);
 }
