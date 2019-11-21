@@ -14,14 +14,18 @@ namespace ExactCover
 class Solver
 {
 public:
-    std::vector<Element *> search(Head * head, unsigned int k, std::vector<Element *> solution, const Sudoku::ILogger & logger);
+    std::vector<std::vector<Element *>> search(Head * head, const Sudoku::ILogger & logger);
 
     void log(std::vector<Element *> solution, const Sudoku::ILogger & logger);
 
 private:
+    std::vector<Element *> search(Head * head, unsigned int k, std::vector<Element *> solution, const Sudoku::ILogger & logger);
     Column * selectColumn(Head * head);
+
     void cover(Column * column);
     void uncover(Column * column);
+
+    std::vector<std::vector<Element *>> mSolutions;
 };
 
 }

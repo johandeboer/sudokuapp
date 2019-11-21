@@ -10,9 +10,11 @@
 #include "Rule.h"
 #include "Loader.h"
 #include <chrono>
-#include <iostream>
 #include "../ExactCover/Element.h"
 #include "../ExactCover/ExactCover.h"
+#include <cassert>
+#include <iostream>
+#include <sstream>
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
@@ -33,9 +35,7 @@ namespace winrt::SudokuApp::implementation
         auto textBlock = std::make_shared<TextBlock>(logTextBlock());
         mLogger = std::make_shared<Logger>(textBlock);
 
-        testDLX();
-
-        auto result = loadPuzzle(R"(puzzles\extreme1.sudoku)");
+        auto result = loadPuzzle(R"(puzzles\example1.sudoku)");
     }
 
     IAsyncAction MainPage::loadPuzzle(std::string filename)
@@ -51,6 +51,8 @@ namespace winrt::SudokuApp::implementation
         co_await ui_thread; 
 
         mPuzzle = Loader::parseText(winrt::to_string(text), mLogger.get());
+
+        testDLX(mPuzzle);
 
         auto start = std::chrono::system_clock::now();
         auto totalChanges = 0u;
@@ -233,9 +235,11 @@ namespace winrt::SudokuApp::implementation
         grid.Children().Append(cellGrid);
     }
 
-    void MainPage::testDLX()
+    void MainPage::testDLX(const std::shared_ptr<Puzzle> & puzzle)
     {
+/*
         std::vector<std::string> columnNames = { "A", "B", "C", "D", "E", "F", "G" };
+        std::vector<std::string> rowNames = { "1", "2", "3", "4", "5", "6", "7" };
         std::vector<std::vector<int>> matrix = {
             {0, 0, 1, 0, 1, 1, 0},
             {1, 0, 0, 1, 0, 0, 1},
@@ -244,11 +248,12 @@ namespace winrt::SudokuApp::implementation
             {0, 1, 0, 0, 0, 0, 1},
             {0, 0, 0, 1, 1, 0, 1}
         };
-
+*/
 /*
         // example from Wikipedia
         // https://en.wikipedia.org/wiki/Knuth%27s_Algorithm_X
         std::vector<std::string> columnNames = { "1", "2", "3", "4", "5", "6", "7" };
+        std::vector<std::string> rowNames = { "A", "B", "C", "D", "E", "F", "G" };
         std::vector<std::vector<int>> matrix = {
             {1, 0, 0, 1, 0, 0, 1},
             {1, 0, 0, 1, 0, 0, 0},
@@ -258,11 +263,14 @@ namespace winrt::SudokuApp::implementation
             {0, 1, 0, 0, 0, 0, 1}
         };
 */
-        auto nRows = matrix.size();
-        auto nColumns = matrix[0].size();
+        auto [matrix, rowNames, columnNames] = reduce(puzzle);
+
+        const auto nRows = matrix.size();
+        const auto nColumns = matrix[0].size();
 
         auto head = ExactCover::Head();
         auto columns = std::vector<ExactCover::Column>();
+        auto rows = std::vector<ExactCover::Row>();
         auto elements = std::vector<std::vector<ExactCover::Element>>(nRows);
 
         // TODO: check
@@ -272,10 +280,13 @@ namespace winrt::SudokuApp::implementation
         for (auto row = 0u; row < nRows; row++)
         for (auto col = 0u; col < nColumns; col++)
         {
+            if (col == 0)
+            {
+                rows.emplace_back(ExactCover::Row(rowNames[row]));
+            }
             if (row == 0)
             {
-                columns.emplace_back<ExactCover::Column>({});
-                columns[col].name = columnNames[col];
+                columns.emplace_back(ExactCover::Column(columnNames[col]));
             }
             elements[row].emplace_back<ExactCover::Element>({});
         }
@@ -284,7 +295,6 @@ namespace winrt::SudokuApp::implementation
         {
             auto & column = columns[col];
 
-            column.name = columnNames[col];
             column.up = &elements[nRows - 1][col];
             column.down = &elements[0][col];
             column.left = col == 0 ? &head : &columns[col - 1];
@@ -299,10 +309,11 @@ namespace winrt::SudokuApp::implementation
         {
             auto & element = elements[row][col];
 
-            element.row = row;
-            element.col = col;
+            element.rowIndex = row;
+            element.colIndex = col;
 
             element.column = &columns[col];
+            element.row = &rows[row];
 
             element.up = row == 0 ? &columns[col] : &elements[row - 1][col];
             element.down = row == nRows - 1 ? &columns[col] : &elements[row + 1][col];
@@ -328,7 +339,84 @@ namespace winrt::SudokuApp::implementation
         }
 
         auto solver = ExactCover::Solver();
-        auto solution = solver.search(&head, 0, {}, *mLogger);
-        solver.log(solution, *mLogger);
+        auto solutions = solver.search(&head, *mLogger);
+        for (auto i = 0u; i < solutions.size(); ++i)
+        {
+            mLogger->log(std::to_string(i + 1).insert(0, "solution #"));
+            solver.log(solutions[i], *mLogger);
+        }
+    }
+
+    std::tuple<std::vector<std::vector<int>>, std::vector<std::string>, std::vector<std::string>> MainPage::reduce(const std::shared_ptr<Sudoku::Puzzle>& puzzle)
+    {
+        const auto k = puzzle->rows();
+        const auto l = static_cast<size_t>(std::sqrtf(k));
+        const auto nRows = k * k * k;
+        const auto nCols = k * k * 4;
+        auto matrix = std::vector<std::vector<int>>(nRows);
+        auto rowNames = std::vector<std::string>(nRows);
+        auto columnNames = std::vector<std::string>(nCols);
+
+        for (auto row = 0u; row < nRows; ++row)
+        {
+            matrix[row].resize(nCols);
+            const auto rowIndex = row / (k*k);
+            const auto colIndex = row / k % k;
+            const auto blockRowIndex = rowIndex / l;
+            const auto blockColIndex = colIndex / l;
+            const auto n = row % k;
+            rowNames[row] = std::string("R").append(std::to_string(rowIndex + 1)).append("C").append(std::to_string(colIndex + 1)).append("#").append(std::to_string(n + 1));
+
+            const auto cell = puzzle->cell(rowIndex, colIndex);
+            if (cell->hasClue())
+            {
+                continue;
+            }
+
+            auto offset = 0u;
+            matrix[row][offset + rowIndex*k + colIndex] = 1; // cell constraint
+            offset += k*k;
+            matrix[row][offset + rowIndex*k + n] = 1; // row constraint
+            offset += k*k;
+            matrix[row][offset + colIndex*k + n] = 1; // column constraint
+            offset += k*k;
+            matrix[row][offset + blockRowIndex*k*l + blockColIndex*k + n] = 1; // block constraint
+        }
+
+        for (auto col = 0u; col < k*k; ++col)
+        {
+            const auto m = col / k;
+            const auto n = col % k;
+            columnNames[col + 0*k*k] = std::string("R").append(std::to_string(m + 1)).append("C").append(std::to_string(n + 1));
+            columnNames[col + 1*k*k] = std::string("R").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1));
+            columnNames[col + 2*k*k] = std::string("C").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1));
+            columnNames[col + 3*k*k] = std::string("B").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1));
+        }
+
+
+        std::stringstream outFile;
+        for (auto row = 0u; row < nRows; ++row)
+        {
+            if (row % k == 0)
+            {
+                outFile << std::string(nCols + 10, '-') << std::endl;
+            }
+
+            outFile << rowNames[row] << " ";
+
+            for (auto col = 0u; col < nCols; ++col)
+            {
+                if (col % (k*k) == 0)
+                {
+                    outFile << "|";
+                }
+
+                outFile << (matrix[row][col] == 1 ? "1" : " ");
+            }
+            outFile << std::endl;
+        }
+        mLogger->log(outFile.str());
+
+        return {std::move(matrix), std::move(rowNames), std::move(columnNames)};
     }
 }

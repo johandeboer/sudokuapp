@@ -3,10 +3,18 @@
 
 using namespace ExactCover;
 
+std::vector<std::vector<Element *>> Solver::search(Head * head, const Sudoku::ILogger & logger)
+{
+    mSolutions = {};
+    search(head, 0, {}, logger);
+    return mSolutions;
+}
+
 std::vector<Element *> Solver::search(Head * head, unsigned int k, std::vector<Element *> solution, const Sudoku::ILogger & logger)
 {
     if (head->right == head)
     {
+        mSolutions.push_back(solution);
         return solution;
     }
 
@@ -108,11 +116,13 @@ void Solver::log(std::vector<Element *> solution, const Sudoku::ILogger & logger
 {
     for (const auto * element : solution)
     {
-        std::string str = element->column->name;
+        auto str = element->row->Name;
+        str.append(" :");
+        str.append(element->column->Name);
         auto i = element->right;
         while (i != element)
         {
-            str.append(i->column->name);
+            str.append(i->column->Name);
             i = i->right;
         }
         logger(str);

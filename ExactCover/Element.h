@@ -7,6 +7,7 @@ namespace ExactCover
 {
 
 struct Column;
+struct Row;
 
 struct Element
 {
@@ -15,23 +16,29 @@ struct Element
     Element * up;
     Element * down;
     Column * column;
+    Row * row;
 
-    unsigned int row;
-    unsigned int col;
+    unsigned int rowIndex;
+    unsigned int colIndex;
 };
 
 struct Column : Element
 {
-    unsigned int size; // () { return mCount; };
-    std::string name;
+    explicit Column(const std::string & name) : Name(name) {}
 
-//private:
-//    unsigned int mCount;
+    unsigned int size; // () { return mCount; };
+    std::string Name;
+};
+
+struct Row : Element
+{
+    explicit Row(const std::string & name) : Name(name) {}
+    std::string Name;
 };
 
 struct Head : Column
 {
-    Head() { name = "head"; }
+    Head() : Column("head") {}
 };
 
 }

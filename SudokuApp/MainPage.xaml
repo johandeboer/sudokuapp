@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
         <Grid x:Name="sudokuGrid" Margin="25 25 25 25" Grid.Column="0" Grid.Row="0"/>
         <ScrollViewer Margin ="25 25 25 25" Grid.Column="1" Grid.Row="0">
-            <TextBlock x:Name="logTextBlock"/>
+            <TextBlock x:Name="logTextBlock" IsTextSelectionEnabled="True"/>
         </ScrollViewer>
     </Grid>
 </Page>
