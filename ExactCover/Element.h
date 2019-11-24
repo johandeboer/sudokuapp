@@ -26,7 +26,7 @@ struct Column : Element
 {
     explicit Column(const std::string & name) : Name(name) {}
 
-    unsigned int size; // () { return mCount; };
+    unsigned int size = 0u;
     std::string Name;
 };
 

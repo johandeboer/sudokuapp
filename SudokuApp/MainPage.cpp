@@ -347,6 +347,44 @@ namespace winrt::SudokuApp::implementation
         }
     }
 
+    void MainPage::reduce2(const std::shared_ptr<Sudoku::Puzzle>& puzzle)
+    {
+        auto head = ExactCover::Head();
+        auto rows = std::vector<ExactCover::Row>();
+        auto elements = std::vector<std::vector<ExactCover::Element>>();
+
+        auto cellConstraints = std::vector<std::vector<ExactCover::Element>>();
+        auto rowConstraints = std::vector<std::vector<ExactCover::Element>>();
+        auto columnConstraints = std::vector<std::vector<ExactCover::Element>>();
+        auto blockConstraints = std::vector<std::vector<ExactCover::Element>>();
+
+        const auto k = puzzle->digits();
+        const auto nCols = k * k * 4;
+        auto columns = std::vector<ExactCover::Column>(nCols);
+        for (auto col = 0u; col < k*k; ++col)
+        {
+            const auto m = col / k;
+            const auto n = col % k;
+            columns.emplace_back(std::string("R").append(std::to_string(m + 1)).append("C").append(std::to_string(n + 1)));
+            columns.emplace_back(std::string("R").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1)));
+            columns.emplace_back(std::string("C").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1)));
+            columns.emplace_back(std::string("B").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1)));
+        }
+
+        for (const auto & cell : puzzle->grid())
+        {
+            auto [row, col] = puzzle->toRowColumn(cell);
+            for (auto digit = 0u; digit < puzzle->digits(); ++digit)
+            {
+                if (cell->isSet(digit))
+                {
+                    
+                }
+            }
+        }
+
+    }
+
     std::tuple<std::vector<std::vector<int>>, std::vector<std::string>, std::vector<std::string>> MainPage::reduce(const std::shared_ptr<Sudoku::Puzzle>& puzzle)
     {
         const auto k = puzzle->rows();
