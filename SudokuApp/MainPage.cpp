@@ -52,7 +52,9 @@ namespace winrt::SudokuApp::implementation
 
         mPuzzle = Loader::parseText(winrt::to_string(text), mLogger.get());
 
-        testDLX(mPuzzle);
+//        testDLX(mPuzzle);
+
+        reduce2(mPuzzle);
 
         auto start = std::chrono::system_clock::now();
         auto totalChanges = 0u;
@@ -309,8 +311,8 @@ namespace winrt::SudokuApp::implementation
         {
             auto & element = elements[row][col];
 
-            element.rowIndex = row;
-            element.colIndex = col;
+//            element.rowIndex = row;
+//            element.colIndex = col;
 
             element.column = &columns[col];
             element.row = &rows[row];
@@ -351,25 +353,33 @@ namespace winrt::SudokuApp::implementation
     {
         auto head = ExactCover::Head();
         auto rows = std::vector<ExactCover::Row>();
-        auto elements = std::vector<std::vector<ExactCover::Element>>();
-
-        auto cellConstraints = std::vector<std::vector<ExactCover::Element>>();
-        auto rowConstraints = std::vector<std::vector<ExactCover::Element>>();
-        auto columnConstraints = std::vector<std::vector<ExactCover::Element>>();
-        auto blockConstraints = std::vector<std::vector<ExactCover::Element>>();
+        auto elements = std::vector<ExactCover::Element>();
 
         const auto k = puzzle->digits();
         const auto nCols = k * k * 4;
-        auto columns = std::vector<ExactCover::Column>(nCols);
-        for (auto col = 0u; col < k*k; ++col)
+        const auto maxRows = k * k * k;
+        auto columns = std::vector<ExactCover::Column>();
+
+        columns.reserve(nCols);
+        rows.reserve(maxRows);
+        elements.reserve(maxRows);
+
+        columns.push_back(head);
+
+        for (auto i = 0u; i < k*k; ++i)
         {
-            const auto m = col / k;
-            const auto n = col % k;
-            columns.emplace_back(std::string("R").append(std::to_string(m + 1)).append("C").append(std::to_string(n + 1)));
-            columns.emplace_back(std::string("R").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1)));
-            columns.emplace_back(std::string("C").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1)));
-            columns.emplace_back(std::string("B").append(std::to_string(m + 1)).append("#").append(std::to_string(n + 1)));
+            const auto row = i / k;
+            const auto col = i % k;
+            columns.emplace_back(std::string("R").append(std::to_string(row + 1)).append("C").append(std::to_string(col + 1)));
+            columns.emplace_back(std::string("R").append(std::to_string(row + 1)).append("#").append(std::to_string(col + 1)));
+            columns.emplace_back(std::string("C").append(std::to_string(row + 1)).append("#").append(std::to_string(col + 1)));
+            columns.emplace_back(std::string("B").append(std::to_string(row + 1)).append("#").append(std::to_string(col + 1)));
         }
+
+        auto columnPtrs = std::vector<ExactCover::Element *>();
+        columnPtrs.reserve(columns.size());
+        std::transform(columns.begin(), columns.end(), std::back_inserter(columnPtrs), [](auto & col) { return &col; });
+        connectRow(columnPtrs);
 
         for (const auto & cell : puzzle->grid())
         {
@@ -378,11 +388,40 @@ namespace winrt::SudokuApp::implementation
             {
                 if (cell->isSet(digit))
                 {
-                    
+                    rows.emplace_back(std::string("R").append(std::to_string(row + 1)).append("C").append(std::to_string(col + 1)).append("#").append(std::to_string(digit + 1)));
+                    const auto i = (row * k + col) * 4 + 1;
+                    elements.emplace_back(&columns[i + 0], &rows.back());
+                    elements.emplace_back(&columns[i + 1], &rows.back());
+                    elements.emplace_back(&columns[i + 2], &rows.back());
+                    elements.emplace_back(&columns[i + 3], &rows.back());
+
+                    std::vector<ExactCover::Element *> constraints(4);
+                    std::transform(elements.end() - 4, elements.end(), constraints.begin(), [](auto & col) { return &col; });
+                    connectRow(constraints);
                 }
             }
         }
 
+// This invalidates the pointers!!
+//        auto columnIsEmpty = [](const auto & column) { return column.size == 0; };
+//        columns.erase(std::remove_if(columns.begin(), columns.end(), columnIsEmpty), columns.end());
+
+        auto solver = ExactCover::Solver();
+        auto solutions = solver.search(&head, *mLogger);
+        for (auto i = 0u; i < solutions.size(); ++i)
+        {
+            mLogger->log(std::to_string(i + 1).insert(0, "solution #"));
+            solver.log(solutions[i], *mLogger);
+        }
+    }
+
+    void MainPage::connectRow(std::vector<ExactCover::Element *> & elements)
+    {
+        for (auto i = 0u; i < elements.size(); ++i)
+        {
+            elements[i]->left = elements[i == 0 ? elements.size() - 1 : i - 1];
+            elements[i]->right = elements[i == elements.size() - 1 ? 0 : i + 1];
+        }
     }
 
     std::tuple<std::vector<std::vector<int>>, std::vector<std::string>, std::vector<std::string>> MainPage::reduce(const std::shared_ptr<Sudoku::Puzzle>& puzzle)

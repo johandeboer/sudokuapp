@@ -26,7 +26,7 @@ public:
     std::size_t columns() const { return mColumns; }
     std::size_t rows() const { return mRows; }
     unsigned int digits() const { return mDigits; }
-    std::vector<std::shared_ptr<Cell>> grid() const { return mGrid; }
+    const std::vector<std::shared_ptr<Cell>> & grid() const { return mGrid; }
     std::pair<size_t, size_t> toRowColumn(std::shared_ptr<Cell> cell);
 
     std::string toRowColString(std::shared_ptr<Cell> cell);

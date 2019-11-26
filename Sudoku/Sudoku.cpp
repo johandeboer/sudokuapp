@@ -21,6 +21,7 @@ Puzzle::Puzzle(std::size_t columns, std::size_t rows, unsigned int digits, ILogg
 std::pair<size_t, size_t> Puzzle::toRowColumn(std::shared_ptr<Cell> cell)
 {
     auto iter = std::find(mGrid.begin(), mGrid.end(), cell);
+    assert(iter != mGrid.end());
     auto index = std::distance(mGrid.begin(), iter);
     auto column = index % mColumns;
     auto row = index / mColumns;

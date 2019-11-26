@@ -26,6 +26,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)SudokuFactory.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\ExactCover\Element.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\ExactCover\ExactCover.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Cell.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Loader.cpp" />

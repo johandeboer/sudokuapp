@@ -11,6 +11,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\ExactCover\ExactCover.cpp">
       <Filter>Algorithm</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\ExactCover\Element.cpp">
+      <Filter>Algorithm</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Cell.h" />

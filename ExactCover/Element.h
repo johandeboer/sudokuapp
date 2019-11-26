@@ -11,20 +11,31 @@ struct Row;
 
 struct Element
 {
+    Element();
+    explicit Element(ExactCover::Column * theColumn, ExactCover::Row * theRow);
+
     Element * left;
     Element * right;
     Element * up;
     Element * down;
-    Column * column;
-    Row * row;
+    Column * column = nullptr;
+    Row * row = nullptr;
 
-    unsigned int rowIndex;
-    unsigned int colIndex;
+//    unsigned int rowIndex;
+//    unsigned int colIndex;
 };
 
 struct Column : Element
 {
-    explicit Column(const std::string & name) : Name(name) {}
+    Column() : Element()
+    { }
+
+    explicit Column(const std::string & name) :
+        Element(),
+        Name(name)
+    {
+        column = this;
+    }
 
     unsigned int size = 0u;
     std::string Name;
@@ -32,13 +43,19 @@ struct Column : Element
 
 struct Row : Element
 {
-    explicit Row(const std::string & name) : Name(name) {}
+    explicit Row(const std::string & name) :
+        Element(),
+        Name(name)
+    { }
+
     std::string Name;
 };
 
 struct Head : Column
 {
-    Head() : Column("head") {}
+    Head() :
+        Column("head")
+    { }
 };
 
 }
