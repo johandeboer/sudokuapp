@@ -265,6 +265,7 @@ namespace winrt::SudokuApp::implementation
             {0, 1, 0, 0, 0, 0, 1}
         };
 */
+/*
         auto [matrix, rowNames, columnNames] = reduce(puzzle);
 
         const auto nRows = matrix.size();
@@ -347,39 +348,40 @@ namespace winrt::SudokuApp::implementation
             mLogger->log(std::to_string(i + 1).insert(0, "solution #"));
             solver.log(solutions[i], *mLogger);
         }
+*/
     }
 
     void MainPage::reduce2(const std::shared_ptr<Sudoku::Puzzle>& puzzle)
     {
-        auto head = ExactCover::Head();
-        auto rows = std::vector<ExactCover::Row>();
-        auto elements = std::vector<ExactCover::Element>();
+        using namespace ExactCover;
+
+        auto nameCreator = [](std::string prefix1, unsigned int n, std::string prefix2, unsigned int m)
+        {
+            return std::string(prefix1).append(std::to_string(n)).append(prefix2).append(std::to_string(m));
+        };
+
+        auto head = std::shared_ptr<Head>();
+        auto rows = std::vector<std::shared_ptr<Row>>();
+        auto elements = std::vector< std::shared_ptr<Element>>();
 
         const auto k = puzzle->digits();
         const auto nCols = k * k * 4;
         const auto maxRows = k * k * k;
-        auto columns = std::vector<ExactCover::Column>();
+        auto columns = std::vector<std::shared_ptr<Column>>();
 
         columns.reserve(nCols);
         rows.reserve(maxRows);
         elements.reserve(maxRows);
 
-        columns.push_back(head);
-
         for (auto i = 0u; i < k*k; ++i)
         {
             const auto row = i / k;
             const auto col = i % k;
-            columns.emplace_back(std::string("R").append(std::to_string(row + 1)).append("C").append(std::to_string(col + 1)));
-            columns.emplace_back(std::string("R").append(std::to_string(row + 1)).append("#").append(std::to_string(col + 1)));
-            columns.emplace_back(std::string("C").append(std::to_string(row + 1)).append("#").append(std::to_string(col + 1)));
-            columns.emplace_back(std::string("B").append(std::to_string(row + 1)).append("#").append(std::to_string(col + 1)));
+            columns.push_back(std::make_shared<Column>(nameCreator("R", row + 1, "C", col + 1)));
+            columns.push_back(std::make_shared<Column>(nameCreator("R", row + 1, "#", col + 1)));
+            columns.push_back(std::make_shared<Column>(nameCreator("C", row + 1, "#", col + 1)));
+            columns.push_back(std::make_shared<Column>(nameCreator("B", row + 1, "#", col + 1)));
         }
-
-        auto columnPtrs = std::vector<ExactCover::Element *>();
-        columnPtrs.reserve(columns.size());
-        std::transform(columns.begin(), columns.end(), std::back_inserter(columnPtrs), [](auto & col) { return &col; });
-        connectRow(columnPtrs);
 
         for (const auto & cell : puzzle->grid())
         {
@@ -388,26 +390,40 @@ namespace winrt::SudokuApp::implementation
             {
                 if (cell->isSet(digit))
                 {
-                    rows.emplace_back(std::string("R").append(std::to_string(row + 1)).append("C").append(std::to_string(col + 1)).append("#").append(std::to_string(digit + 1)));
-                    const auto i = (row * k + col) * 4 + 1;
-                    elements.emplace_back(&columns[i + 0], &rows.back());
-                    elements.emplace_back(&columns[i + 1], &rows.back());
-                    elements.emplace_back(&columns[i + 2], &rows.back());
-                    elements.emplace_back(&columns[i + 3], &rows.back());
+                    rows.push_back(std::make_shared<Row>(nameCreator("R", row + 1, "C", col + 1).append("#").append(std::to_string(digit + 1))));
 
-                    std::vector<ExactCover::Element *> constraints(4);
-                    std::transform(elements.end() - 4, elements.end(), constraints.begin(), [](auto & col) { return &col; });
-                    connectRow(constraints);
+                    const auto i = (row * k + col) * 4;
+
+                    std::vector<std::shared_ptr<Element>> constraints{};
+                    constraints.push_back(std::make_shared<Element>(columns[i + 0], rows.back()));
+                    constraints.push_back(std::make_shared<Element>(columns[i + 1], rows.back()));
+                    constraints.push_back(std::make_shared<Element>(columns[i + 2], rows.back()));
+                    constraints.push_back(std::make_shared<Element>(columns[i + 3], rows.back()));
+
+                    for (auto j = 0u; j < constraints.size(); ++j)
+                    {
+                        constraints[j]->left = constraints[j == 0 ? constraints.size() - 1 : j - 1];
+                        constraints[j]->right = constraints[j == constraints.size() - 1 ? 0 : j + 1];
+                    }
+
+                    elements.insert(elements.end(), constraints.begin(), constraints.end());
                 }
             }
         }
 
-// This invalidates the pointers!!
-//        auto columnIsEmpty = [](const auto & column) { return column.size == 0; };
+//        auto columnIsEmpty = [](const auto & column) { return column->size == 0; };
 //        columns.erase(std::remove_if(columns.begin(), columns.end(), columnIsEmpty), columns.end());
 
+        columns.push_back(head);
+
+        for (auto i = 0u; i < columns.size(); ++i)
+        {
+            columns[i]->left = columns[i == 0 ? columns.size() - 1 : i - 1];
+            columns[i]->right = columns[i == columns.size() - 1 ? 0 : i + 1];
+        }
+
         auto solver = ExactCover::Solver();
-        auto solutions = solver.search(&head, *mLogger);
+        auto solutions = solver.search(head, *mLogger);
         for (auto i = 0u; i < solutions.size(); ++i)
         {
             mLogger->log(std::to_string(i + 1).insert(0, "solution #"));
@@ -415,7 +431,7 @@ namespace winrt::SudokuApp::implementation
         }
     }
 
-    void MainPage::connectRow(std::vector<ExactCover::Element *> & elements)
+    void MainPage::connectRow(std::vector<std::shared_ptr<ExactCover::Element>> & elements)
     {
         for (auto i = 0u; i < elements.size(); ++i)
         {

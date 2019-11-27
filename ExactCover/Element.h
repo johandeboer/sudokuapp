@@ -12,17 +12,14 @@ struct Row;
 struct Element
 {
     Element();
-    explicit Element(ExactCover::Column * theColumn, ExactCover::Row * theRow);
+    explicit Element(std::shared_ptr<Column> theColumn, std::shared_ptr<Row> theRow);
 
-    Element * left;
-    Element * right;
-    Element * up;
-    Element * down;
-    Column * column = nullptr;
-    Row * row = nullptr;
-
-//    unsigned int rowIndex;
-//    unsigned int colIndex;
+    std::shared_ptr<Element> left;
+    std::shared_ptr<Element> right;
+    std::shared_ptr<Element> up;
+    std::shared_ptr<Element> down;
+    std::shared_ptr<Column> column = nullptr;
+    std::shared_ptr<Row> row = nullptr;
 };
 
 struct Column : Element
@@ -34,7 +31,7 @@ struct Column : Element
         Element(),
         Name(name)
     {
-        column = this;
+        column = std::shared_ptr<Column>(this);
     }
 
     unsigned int size = 0u;

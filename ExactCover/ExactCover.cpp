@@ -3,14 +3,14 @@
 
 using namespace ExactCover;
 
-std::vector<std::vector<Element *>> Solver::search(Head * head, const Sudoku::ILogger & logger)
+std::vector<Solution> Solver::search(std::shared_ptr<Head> head, const Sudoku::ILogger & logger)
 {
     mSolutions = {};
     search(head, 0, {}, logger);
     return mSolutions;
 }
 
-std::vector<Element *> Solver::search(Head * head, unsigned int k, std::vector<Element *> solution, const Sudoku::ILogger & logger)
+Solution Solver::search(std::shared_ptr<Head> head, unsigned int k, Solution solution, const Sudoku::ILogger & logger)
 {
     if (head->right == head)
     {
@@ -20,7 +20,7 @@ std::vector<Element *> Solver::search(Head * head, unsigned int k, std::vector<E
 
     auto column = selectColumn(head);
     auto r = column->down;
-    auto c = static_cast<Element *>(column);
+    auto c = std::static_pointer_cast<Element>(column);
 
     cover(column);
 
@@ -56,9 +56,9 @@ std::vector<Element *> Solver::search(Head * head, unsigned int k, std::vector<E
     return solution;
 }
 
-Column * Solver::selectColumn(Head * head)
+std::shared_ptr<Column> Solver::selectColumn(std::shared_ptr<Head> head)
 {
-    auto i = static_cast<Column *>(head->right);
+    auto i = std::static_pointer_cast<Column>(head->right);
     auto minElement = i;
 
     while (i != head)
@@ -67,13 +67,13 @@ Column * Solver::selectColumn(Head * head)
         {
             minElement = i;
         }
-        i = static_cast<Column *>(i->right);
+        i = std::static_pointer_cast<Column>(i->right);
     }
 
     return minElement;
 }
 
-void Solver::cover(Column * c)
+void Solver::cover(std::shared_ptr<Column> c)
 {
     c->right->left = c->left;
     c->left->right = c->right;
@@ -93,7 +93,7 @@ void Solver::cover(Column * c)
     }
 }
 
-void Solver::uncover(Column * c)
+void Solver::uncover(std::shared_ptr<Column> c)
 {
     auto i = c->up;
     while (i != c)
@@ -112,9 +112,9 @@ void Solver::uncover(Column * c)
     c->left->right = c;
 }
 
-void Solver::log(std::vector<Element *> solution, const Sudoku::ILogger & logger)
+void Solver::log(Solution solution, const Sudoku::ILogger & logger)
 {
-    for (const auto * element : solution)
+    for (const auto element : solution)
     {
         auto str = element->row->Name;
         str.append(" :");

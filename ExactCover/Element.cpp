@@ -11,14 +11,14 @@ Element::Element() :
 {
 }
 
-Element::Element(Column * theColumn, ExactCover::Row * theRow) :
+Element::Element(std::shared_ptr<Column> theColumn, std::shared_ptr<Row> theRow) :
     Element()
 {
     column = theColumn;
     row = theRow;
     down = column->down;
-    column->down->up = this;
+    column->down->up = std::shared_ptr<Element>(this);
     up = column;
-    column->down = this;
+    column->down = std::shared_ptr<Element>(this);
     column->size++;
 }
