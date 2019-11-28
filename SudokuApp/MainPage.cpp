@@ -52,11 +52,16 @@ namespace winrt::SudokuApp::implementation
 
         mPuzzle = Loader::parseText(winrt::to_string(text), mLogger.get());
 
-//        testDLX(mPuzzle);
-
-        reduce2(mPuzzle);
-
         auto start = std::chrono::system_clock::now();
+
+//        reduce2(mPuzzle);
+
+        auto end = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+        mLogger->log("solved in " + std::to_string(elapsed_seconds.count() * 1000.0) + "ms");
+
+        start = std::chrono::system_clock::now();
+
         auto totalChanges = 0u;
         auto sweepCount = 0u;
 
@@ -74,8 +79,8 @@ namespace winrt::SudokuApp::implementation
             sweepCount++;
         }
 
-        auto end = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
+        end = std::chrono::system_clock::now();
+        elapsed_seconds = end - start;
         mLogger->log(std::to_string(totalChanges) + " steps in " + std::to_string(elapsed_seconds.count() * 1000.0) + "ms");
 
         fillGrid(mPuzzle);
@@ -360,20 +365,20 @@ namespace winrt::SudokuApp::implementation
             return std::string(prefix1).append(std::to_string(n)).append(prefix2).append(std::to_string(m));
         };
 
-        auto head = std::shared_ptr<Head>();
+        const auto k = puzzle->digits();
+        const auto l = static_cast<size_t>(std::sqrtf(k));
+        const auto nCols = k * k * 4;
+        const auto maxRows = k * k * k;
+
+        auto head = std::make_shared<Head>();
         auto rows = std::vector<std::shared_ptr<Row>>();
         auto elements = std::vector< std::shared_ptr<Element>>();
 
-        const auto k = puzzle->digits();
-        const auto nCols = k * k * 4;
-        const auto maxRows = k * k * k;
         auto columns = std::vector<std::shared_ptr<Column>>();
+        columns.push_back(head);
 
-        columns.reserve(nCols);
-        rows.reserve(maxRows);
-        elements.reserve(maxRows);
-
-        for (auto i = 0u; i < k*k; ++i)
+        // create all columns
+        for (auto i = 0u; i < k * k; ++i)
         {
             const auto row = i / k;
             const auto col = i % k;
@@ -383,60 +388,84 @@ namespace winrt::SudokuApp::implementation
             columns.push_back(std::make_shared<Column>(nameCreator("B", row + 1, "#", col + 1)));
         }
 
+        // connect columns
+        for (auto i = 0u; i < columns.size(); ++i)
+        {
+            auto & column = columns[i];
+            column->left = columns[i == 0 ? columns.size() - 1 : i - 1].get();
+            column->right = columns[i == columns.size() - 1 ? 0 : i + 1].get();
+            column->up = column.get();
+            column->down = column.get();
+            column->column = column.get();
+        }
+
+        // create rows and elements
         for (const auto & cell : puzzle->grid())
         {
             auto [row, col] = puzzle->toRowColumn(cell);
-            for (auto digit = 0u; digit < puzzle->digits(); ++digit)
+            for (auto digit = 1u; digit <= puzzle->digits(); ++digit)
             {
                 if (cell->isSet(digit))
                 {
-                    rows.push_back(std::make_shared<Row>(nameCreator("R", row + 1, "C", col + 1).append("#").append(std::to_string(digit + 1))));
+                    rows.push_back(std::make_shared<Row>(nameCreator("R", row + 1, "C", col + 1).append("#").append(std::to_string(digit))));
+                    auto & currentRow = rows.back();
+                    currentRow->rowIndex = row;
+                    currentRow->colIndex = col;
+                    currentRow->value = digit;
 
-                    const auto i = (row * k + col) * 4;
-
-                    std::vector<std::shared_ptr<Element>> constraints{};
-                    constraints.push_back(std::make_shared<Element>(columns[i + 0], rows.back()));
-                    constraints.push_back(std::make_shared<Element>(columns[i + 1], rows.back()));
-                    constraints.push_back(std::make_shared<Element>(columns[i + 2], rows.back()));
-                    constraints.push_back(std::make_shared<Element>(columns[i + 3], rows.back()));
-
-                    for (auto j = 0u; j < constraints.size(); ++j)
-                    {
-                        constraints[j]->left = constraints[j == 0 ? constraints.size() - 1 : j - 1];
-                        constraints[j]->right = constraints[j == constraints.size() - 1 ? 0 : j + 1];
-                    }
-
-                    elements.insert(elements.end(), constraints.begin(), constraints.end());
+                    const auto rowIndex = rows.size() - 1;
+                    const auto blockRow = row / l;
+                    const auto blockCol = col / l;
+                    elements.push_back(std::make_shared<Element>(rowIndex, (row * k + col) * 4));
+                    elements.push_back(std::make_shared<Element>(rowIndex, (row * k + digit - 1) * 4 + 1));
+                    elements.push_back(std::make_shared<Element>(rowIndex, (col * k + digit - 1) * 4 + 2));
+                    elements.push_back(std::make_shared<Element>(rowIndex, (blockRow * k * l + blockCol * k + digit - 1) * 4 + 3));
                 }
             }
         }
 
-//        auto columnIsEmpty = [](const auto & column) { return column->size == 0; };
-//        columns.erase(std::remove_if(columns.begin(), columns.end(), columnIsEmpty), columns.end());
-
-        columns.push_back(head);
-
-        for (auto i = 0u; i < columns.size(); ++i)
+        // add elements to rows and columns
+        for (auto & element : elements)
         {
-            columns[i]->left = columns[i == 0 ? columns.size() - 1 : i - 1];
-            columns[i]->right = columns[i == columns.size() - 1 ? 0 : i + 1];
+            element->row = rows[element->rowIndex].get();
+            columns[element->colIndex + 1]->addElement(element.get()); // account for head
         }
 
-        auto solver = ExactCover::Solver();
-        auto solutions = solver.search(head, *mLogger);
+        // connect elements left-right
+        for (auto i = 0u; i < elements.size() / 4; ++i)
+        {
+            for (auto j = 0u; j < 4; ++j)
+            {
+                const auto col = i * 4 + j;
+                elements[col]->left = elements[j == 0 ? i * 4 + 3 : col - 1].get();
+                elements[col]->right = elements[j == 3 ? i * 4 : col + 1].get();
+            }
+        }
+
+        // disconnect empty columns, skip head
+        for (auto i = 1u; i < columns.size(); ++i)
+        {
+            auto * column = columns[i].get();
+            if (column->size == 0)
+            {
+                column->right->left = column->left;
+                column->left->right = column->right;
+            }
+        }
+
+        auto solver = Solver();
+        auto solutions = solver.search(head.get(), *mLogger);
         for (auto i = 0u; i < solutions.size(); ++i)
         {
             mLogger->log(std::to_string(i + 1).insert(0, "solution #"));
-            solver.log(solutions[i], *mLogger);
+            Solver::log(solutions[i], *mLogger);
         }
-    }
 
-    void MainPage::connectRow(std::vector<std::shared_ptr<ExactCover::Element>> & elements)
-    {
-        for (auto i = 0u; i < elements.size(); ++i)
+        for (auto & element : solutions[0])
         {
-            elements[i]->left = elements[i == 0 ? elements.size() - 1 : i - 1];
-            elements[i]->right = elements[i == elements.size() - 1 ? 0 : i + 1];
+            auto * row = static_cast<Row *>(element->row);
+            auto cell = puzzle->cell(row->rowIndex, row->colIndex);
+            cell->setClue(row->value);
         }
     }
 

@@ -3,22 +3,18 @@
 
 using namespace ExactCover;
 
-Element::Element() :
-    left(this),
-    right(this),
-    up(this),
-    down(this)
+Element::Element(size_t row, size_t col) :
+    rowIndex(row),
+    colIndex(col)
 {
 }
 
-Element::Element(std::shared_ptr<Column> theColumn, std::shared_ptr<Row> theRow) :
-    Element()
+void Column::addElement(Element * element)
 {
-    column = theColumn;
-    row = theRow;
-    down = column->down;
-    column->down->up = std::shared_ptr<Element>(this);
-    up = column;
-    column->down = std::shared_ptr<Element>(this);
-    column->size++;
+    element->column = this;
+    element->down = down;
+    down->up = element;
+    element->up = this;
+    down = element;
+    size++;
 }

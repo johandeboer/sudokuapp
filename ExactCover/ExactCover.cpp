@@ -3,24 +3,25 @@
 
 using namespace ExactCover;
 
-std::vector<Solution> Solver::search(std::shared_ptr<Head> head, const Sudoku::ILogger & logger)
+std::vector<Solution> Solver::search(Head * head, const Sudoku::ILogger & logger)
 {
     mSolutions = {};
     search(head, 0, {}, logger);
     return mSolutions;
 }
 
-Solution Solver::search(std::shared_ptr<Head> head, unsigned int k, Solution solution, const Sudoku::ILogger & logger)
+Solution Solver::search(Head * head, unsigned int k, Solution solution, const Sudoku::ILogger & logger)
 {
     if (head->right == head)
     {
         mSolutions.push_back(solution);
+
         return solution;
     }
 
     auto column = selectColumn(head);
     auto r = column->down;
-    auto c = std::static_pointer_cast<Element>(column);
+    const auto c = static_cast<Element *>(column);
 
     cover(column);
 
@@ -36,6 +37,9 @@ Solution Solver::search(std::shared_ptr<Head> head, unsigned int k, Solution sol
         }
 
         solution = search(head, k + 1, solution, logger);
+
+        if (mSolutions.size() > 0)
+            return solution;
 
         r = solution.back();
         solution.pop_back();
@@ -56,9 +60,9 @@ Solution Solver::search(std::shared_ptr<Head> head, unsigned int k, Solution sol
     return solution;
 }
 
-std::shared_ptr<Column> Solver::selectColumn(std::shared_ptr<Head> head)
+Column * Solver::selectColumn(Head * head)
 {
-    auto i = std::static_pointer_cast<Column>(head->right);
+    auto i = static_cast<Column *>(head->right);
     auto minElement = i;
 
     while (i != head)
@@ -67,13 +71,13 @@ std::shared_ptr<Column> Solver::selectColumn(std::shared_ptr<Head> head)
         {
             minElement = i;
         }
-        i = std::static_pointer_cast<Column>(i->right);
+        i = static_cast<Column *>(i->right);
     }
 
     return minElement;
 }
 
-void Solver::cover(std::shared_ptr<Column> c)
+void Solver::cover(Column * c)
 {
     c->right->left = c->left;
     c->left->right = c->right;
@@ -93,7 +97,7 @@ void Solver::cover(std::shared_ptr<Column> c)
     }
 }
 
-void Solver::uncover(std::shared_ptr<Column> c)
+void Solver::uncover(Column * c)
 {
     auto i = c->up;
     while (i != c)
@@ -112,17 +116,19 @@ void Solver::uncover(std::shared_ptr<Column> c)
     c->left->right = c;
 }
 
-void Solver::log(Solution solution, const Sudoku::ILogger & logger)
+void Solver::log(const Solution & solution, const Sudoku::ILogger & logger)
 {
     for (const auto element : solution)
     {
         auto str = element->row->Name;
         str.append(" :");
         str.append(element->column->Name);
+        str.append(" ");
         auto i = element->right;
         while (i != element)
         {
             str.append(i->column->Name);
+            str.append(" ");
             i = i->right;
         }
         logger(str);

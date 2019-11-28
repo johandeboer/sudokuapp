@@ -8,7 +8,7 @@
 namespace ExactCover
 {
 
-using Solution = std::vector<std::shared_ptr<Element>>;
+using Solution = std::vector<Element *>;
 
 // Implements Knuth's DLX algorithm
 // The DLX algorithm is the dancing links version of algorithm X
@@ -16,20 +16,18 @@ using Solution = std::vector<std::shared_ptr<Element>>;
 class Solver
 {
 public:
-    std::vector<Solution> search(std::shared_ptr<Head> head, const Sudoku::ILogger & logger);
-
-    void log(Solution solution, const Sudoku::ILogger & logger);
+    std::vector<Solution> search(Head * head, const Sudoku::ILogger & logger);
+    static void log(const Solution & solution, const Sudoku::ILogger & logger);
 
 private:
     Solution search(
-        std::shared_ptr<Head> head,
+        Head * head,
         unsigned int k,
         Solution solution,
         const Sudoku::ILogger & logger);
-    std::shared_ptr<Column> selectColumn(std::shared_ptr<Head> head);
-
-    void cover(std::shared_ptr<Column> column);
-    void uncover(std::shared_ptr<Column> column);
+    static Column * selectColumn(Head * head);
+    static void cover(Column * column);
+    static void uncover(Column * column);
 
     std::vector<Solution> mSolutions;
 };

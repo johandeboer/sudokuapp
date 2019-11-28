@@ -11,28 +11,28 @@ struct Row;
 
 struct Element
 {
-    Element();
-    explicit Element(std::shared_ptr<Column> theColumn, std::shared_ptr<Row> theRow);
+    Element() {}
+    explicit Element(size_t row, size_t col);
 
-    std::shared_ptr<Element> left;
-    std::shared_ptr<Element> right;
-    std::shared_ptr<Element> up;
-    std::shared_ptr<Element> down;
-    std::shared_ptr<Column> column = nullptr;
-    std::shared_ptr<Row> row = nullptr;
+    Element * left = nullptr;
+    Element * right = nullptr;
+    Element * up = nullptr;
+    Element * down = nullptr;
+    Column * column = nullptr;
+    Row * row = nullptr;
+
+    size_t rowIndex = 0;
+    size_t colIndex = 0;
 };
 
 struct Column : Element
 {
-    Column() : Element()
-    { }
-
     explicit Column(const std::string & name) :
-        Element(),
         Name(name)
     {
-        column = std::shared_ptr<Column>(this);
     }
+
+    void addElement(Element * element);
 
     unsigned int size = 0u;
     std::string Name;
@@ -46,12 +46,12 @@ struct Row : Element
     { }
 
     std::string Name;
+    unsigned int value;
 };
 
 struct Head : Column
 {
-    Head() :
-        Column("head")
+    Head() : Column("head")
     { }
 };
 
